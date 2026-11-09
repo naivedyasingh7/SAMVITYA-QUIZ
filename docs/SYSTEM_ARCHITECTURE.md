@@ -57,15 +57,15 @@ flowchart TD
 ## 2. End-to-End Data Pipeline
 
 ### Flow A: Online Quiz Activity
-1. **Participant Intake:** Participant scans event QR code; Person 1's module registers identity and stores `participant_id` (UUID) in local state / cookies.
-2. **Quiz Launch:** Participant clicks an online activity. Person 3's module creates a record in `quiz_attempts` and opens the provider link with URL query parameters (`?participant_id=UUID&attempt_id=UUID`).
-3. **Result Ingestion:** Upon quiz completion, the external platform (or mock adapter) sends the raw score to Person 3's ingestion endpoint.
-4. **Scoring & Verification:** Person 4's scoring engine receives the normalized result, checks for duplicate submissions (`external_result_id` uniqueness), evaluates against `scoring_rules`, and writes an immutable record to `points_transactions`.
+1. **Participant Intake:** Participant scans event QR code; Srikirti's module registers identity and stores `participant_id` (UUID) in local state / cookies.
+2. **Quiz Launch:** Participant clicks an online activity. Ashwin's module creates a record in `quiz_attempts` and opens the provider link with URL query parameters (`?participant_id=UUID&attempt_id=UUID`).
+3. **Result Ingestion:** Upon quiz completion, the external platform (or mock adapter) sends the raw score to Ashwin's ingestion endpoint.
+4. **Scoring & Verification:** Divya's scoring engine receives the normalized result, checks for duplicate submissions (`external_result_id` uniqueness), evaluates against `scoring_rules`, and writes an immutable record to `points_transactions`.
 5. **Leaderboard Refresh:** Leaderboard triggers an update, re-aggregating valid point transactions. Realtime notifications broadcast updated ranks to all screens.
 
 ### Flow B: Offline Game & Staff Award
-1. **Admin Action:** Staff/Admin logs in via Person 2's portal and selects a participant and offline activity (e.g., Booth Game, Hackathon Bonus).
-2. **Transaction Emission:** Admin specifies point value and rationale. Request is routed through Person 4's points engine.
+1. **Admin Action:** Staff/Admin logs in via Suvradeep's portal and selects a participant and offline activity (e.g., Booth Game, Hackathon Bonus).
+2. **Transaction Emission:** Admin specifies point value and rationale. Request is routed through Divya's points engine.
 3. **Audit Ledger:** Point change is logged in `points_transactions` with `created_by_admin_id`.
 4. **Leaderboard Refresh:** Realtime broadcast reflects the updated score immediately.
 
@@ -78,4 +78,4 @@ flowchart TD
 2. **Idempotency & Duplicate Prevention:**
    Every external score submission must include an `external_result_id`. The database enforces `UNIQUE(activity_id, external_result_id)`. Duplicate webhook hits or page refreshes are discarded safely.
 3. **Provider Agnostic Design:**
-   Person 3's Quiz Integration module isolates third-party platforms behind a unified `BaseQuizProvider` interface. Supporting Kahoot, Wayground, Quizizz, or custom web forms requires zero modifications to the scoring or participant modules.
+   Ashwin's Quiz Integration module isolates third-party platforms behind a unified `BaseQuizProvider` interface. Supporting Kahoot, Wayground, Quizizz, or custom web forms requires zero modifications to the scoring or participant modules.

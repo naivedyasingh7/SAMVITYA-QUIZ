@@ -33,7 +33,7 @@ This document describes all standard endpoints, request bodies, response shapes,
 
 ## 🔌 Core Interfaces by Module
 
-### 1. Participant System (Person 1)
+### 1. Participant System (Srikirti)
 - **POST `/api/participants/register`**
   - **Request Body:**
     ```json
@@ -84,7 +84,7 @@ This document describes all standard endpoints, request bodies, response shapes,
 
 ---
 
-### 2. Admin System (Person 2)
+### 2. Admin System (Suvradeep)
 - **GET `/api/activities`**
   - **Query Params:** `?type=online_quiz|offline_game&active=true`
   - **Response (200 OK):** Array of activity records.
@@ -115,7 +115,7 @@ This document describes all standard endpoints, request bodies, response shapes,
 
 ---
 
-### 3. Quiz Integration Framework (Person 3)
+### 3. Quiz Integration Framework (Ashwin)
 - **POST `/api/quiz/launch`**
   - **Request Body:**
     ```json
@@ -158,7 +158,7 @@ This document describes all standard endpoints, request bodies, response shapes,
 
 ---
 
-### 4. Automatic Scoring Engine (Person 4)
+### 4. Automatic Scoring Engine (Divya)
 - **POST `/api/scoring/process`**
   - **Request Body:** Standard Normalized Quiz Result object.
   - **Response (200 OK):**
@@ -177,7 +177,7 @@ This document describes all standard endpoints, request bodies, response shapes,
 
 ---
 
-### 5. Leaderboard (Person 5)
+### 5. Leaderboard (Priyanshu)
 - **GET `/api/leaderboard`**
   - **Query Params:** `?limit=50&offset=0`
   - **Response (200 OK):**

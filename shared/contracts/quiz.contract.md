@@ -1,6 +1,6 @@
 # Quiz Integration Contract
 
-- **Owner:** Person 3 (`frontend/src/features/quiz-integration-framework/` & `backend/services/quiz/`)
+- **Owner:** Ashwin (`frontend/src/features/quiz-integration-framework/` & `backend/services/quiz/`)
 - **Key Tables:** `quiz_providers`, `quiz_integrations`, `quiz_attempts`, `quiz_results`
 - **Abstract Base Class:** `BaseQuizProvider`
 - **Required Implementation Methods:**

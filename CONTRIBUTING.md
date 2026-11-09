@@ -12,12 +12,12 @@ Our branching model enforces clean integration onto `develop` and production rea
 main (protected - production only)
  │
  └── develop (integration branch - staging)
-      ├── feature/participant-system          (Person 1)
-      ├── feature/admin-system                (Person 2)
-      ├── feature/quiz-integration-framework  (Person 3)
-      ├── feature/automatic-scoring           (Person 4)
-      ├── feature/leaderboard                 (Person 5)
-      └── feature/testing-and-deployment      (Person 6)
+      ├── feature/participant-system          (Srikirti)
+      ├── feature/admin-system                (Suvradeep)
+      ├── feature/quiz-integration-framework  (Ashwin)
+      ├── feature/automatic-scoring           (Divya)
+      ├── feature/leaderboard                 (Priyanshu)
+      └── feature/testing-and-deployment      (Naivedya)
 ```
 
 ### Branch Rules
@@ -33,12 +33,12 @@ main (protected - production only)
 
 ## 🤝 Module Boundary Protection
 
-- **Person 1:** Works in `frontend/src/features/participant-system/`
-- **Person 2:** Works in `frontend/src/features/admin-system/`
-- **Person 3:** Works in `frontend/src/features/quiz-integration-framework/` & `backend/services/quiz/`
-- **Person 4:** Works in `frontend/src/features/automatic-scoring/` & `backend/services/scoring/`
-- **Person 5:** Works in `frontend/src/features/leaderboard/`
-- **Person 6:** Works in `tests/` and `frontend/src/features/testing-and-deployment/`
+- **Srikirti:** Works in `frontend/src/features/participant-system/`
+- **Suvradeep:** Works in `frontend/src/features/admin-system/`
+- **Ashwin:** Works in `frontend/src/features/quiz-integration-framework/` & `backend/services/quiz/`
+- **Divya:** Works in `frontend/src/features/automatic-scoring/` & `backend/services/scoring/`
+- **Priyanshu:** Works in `frontend/src/features/leaderboard/`
+- **Naivedya:** Works in `tests/` and `frontend/src/features/testing-and-deployment/`
 
 **Integrator Owned (Protected):**
 - `docs/`

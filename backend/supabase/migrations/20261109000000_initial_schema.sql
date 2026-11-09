@@ -3,7 +3,7 @@
 -- Approved centralized schema across 6 independent modules
 -- ====================================================================
 
--- 1. Participants Table (Owner: Person 1)
+-- 1. Participants Table (Owner: Srikirti)
 CREATE TABLE IF NOT EXISTS public.participants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     participant_code VARCHAR(32) NOT NULL UNIQUE,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS public.participants (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 2. Admins Table (Owner: Person 2)
+-- 2. Admins Table (Owner: Suvradeep)
 CREATE TABLE IF NOT EXISTS public.admins (
     id UUID PRIMARY KEY,
     full_name VARCHAR(128) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.admins (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 3. Activities Table (Owner: Person 2)
+-- 3. Activities Table (Owner: Suvradeep)
 CREATE TABLE IF NOT EXISTS public.activities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(128) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.activities (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 4. Quiz Providers Table (Owner: Person 3)
+-- 4. Quiz Providers Table (Owner: Ashwin)
 CREATE TABLE IF NOT EXISTS public.quiz_providers (
     id VARCHAR(32) PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public.quiz_providers (
     is_enabled BOOLEAN NOT NULL DEFAULT TRUE
 );
 
--- 5. Quiz Integrations Table (Owner: Person 3)
+-- 5. Quiz Integrations Table (Owner: Ashwin)
 CREATE TABLE IF NOT EXISTS public.quiz_integrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     activity_id UUID NOT NULL UNIQUE REFERENCES public.activities(id) ON DELETE CASCADE,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS public.quiz_integrations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 6. Quiz Attempts Table (Owner: Person 3)
+-- 6. Quiz Attempts Table (Owner: Ashwin)
 CREATE TABLE IF NOT EXISTS public.quiz_attempts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     participant_id UUID NOT NULL REFERENCES public.participants(id) ON DELETE CASCADE,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS public.quiz_attempts (
     completed_at TIMESTAMPTZ
 );
 
--- 7. Quiz Results Table (Owner: Person 3)
+-- 7. Quiz Results Table (Owner: Ashwin)
 CREATE TABLE IF NOT EXISTS public.quiz_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     attempt_id UUID NOT NULL REFERENCES public.quiz_attempts(id) ON DELETE CASCADE,
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS public.quiz_results (
     CONSTRAINT uq_activity_external_result UNIQUE (activity_id, external_result_id)
 );
 
--- 8. Scoring Rules Table (Owner: Person 4)
+-- 8. Scoring Rules Table (Owner: Divya)
 CREATE TABLE IF NOT EXISTS public.scoring_rules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     activity_id UUID NOT NULL REFERENCES public.activities(id) ON DELETE CASCADE,
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS public.scoring_rules (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 9. Points Transactions Table (Owner: Person 4 - IMMUTABLE LEDGER)
+-- 9. Points Transactions Table (Owner: Divya - IMMUTABLE LEDGER)
 CREATE TABLE IF NOT EXISTS public.points_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     participant_id UUID NOT NULL REFERENCES public.participants(id) ON DELETE CASCADE,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS public.points_transactions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 10. Leaderboard Table (Owner: Person 5)
+-- 10. Leaderboard Table (Owner: Priyanshu)
 CREATE TABLE IF NOT EXISTS public.leaderboard (
     participant_id UUID PRIMARY KEY REFERENCES public.participants(id) ON DELETE CASCADE,
     total_points INTEGER NOT NULL DEFAULT 0,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS public.leaderboard (
     last_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 11. Winner Declarations Table (Owner: Person 5)
+-- 11. Winner Declarations Table (Owner: Priyanshu)
 CREATE TABLE IF NOT EXISTS public.winner_declarations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(128) NOT NULL,

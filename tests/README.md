@@ -1,4 +1,4 @@
-# Test Suite (Owned by Person 6 - Testing & Deployment)
+# Test Suite (Owned by Naivedya - Testing & Deployment)
 
 This directory contains automated unit, integration, and end-to-end tests for the Event Points Management System.
 

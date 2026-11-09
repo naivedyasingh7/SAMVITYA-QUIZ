@@ -1,6 +1,6 @@
 # Admin Interface Contract
 
-- **Owner:** Person 2 (`frontend/src/features/admin-system/`)
+- **Owner:** Suvradeep (`frontend/src/features/admin-system/`)
 - **Key Tables:** `admins`, `activities`
 - **Exported Methods / Components:**
   - `adminService.login(credentials)`

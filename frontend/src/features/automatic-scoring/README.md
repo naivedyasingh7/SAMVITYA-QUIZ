@@ -1,7 +1,7 @@
 # Module 4: Automatic Scoring
 
 - **Phase:** 4
-- **Owner:** Person 4
+- **Owner:** Divya
 - **Git Branch:** `feature/automatic-scoring`
 - **Directories:**
   - `frontend/src/features/automatic-scoring/`

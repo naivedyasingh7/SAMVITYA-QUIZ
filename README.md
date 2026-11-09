@@ -31,12 +31,12 @@ event-points-management-system/
 │       ├── app/                        # App root, router, global providers
 │       ├── shared/                     # Common UI components, layouts, hooks
 │       └── features/                   # 6 Independent Development Modules:
-│           ├── participant-system/     # [Person 1] QR entry & participant portal
-│           ├── admin-system/           # [Person 2] Admin dashboard & offline points
-│           ├── quiz-integration-framework/ # [Person 3] Provider adapters & attempts
-│           ├── automatic-scoring/      # [Person 4] Point calculation & audit engine
-│           ├── leaderboard/            # [Person 5] Real-time rankings & winners
-│           └── testing-and-deployment/ # [Person 6] Integration QA & CI/CD
+│           ├── participant-system/     # [Srikirti] QR entry & participant portal
+│           ├── admin-system/           # [Suvradeep] Admin dashboard & offline points
+│           ├── quiz-integration-framework/ # [Ashwin] Provider adapters & attempts
+│           ├── automatic-scoring/      # [Divya] Point calculation & audit engine
+│           ├── leaderboard/            # [Priyanshu] Real-time rankings & winners
+│           └── testing-and-deployment/ # [Naivedya] Integration QA & CI/CD
 │
 ├── backend/
 │   ├── supabase/                       # Supabase Postgres, migrations & Edge Functions
@@ -63,12 +63,12 @@ event-points-management-system/
 
 | Phase | Module Folder | Primary Focus | Owner | Git Branch |
 |---|---|---|---|---|
-| **1** | `frontend/src/features/participant-system/` | QR Registration, Participant ID, Returning Detection, Dashboard | Person 1 | `feature/participant-system` |
-| **2** | `frontend/src/features/admin-system/` | Admin Auth, Activity Management, Offline Points, Adjustments | Person 2 | `feature/admin-system` |
-| **3** | `frontend/src/features/quiz-integration-framework/` | Provider Adapters, Quiz Launch, Ingestion, Matching | Person 3 | `feature/quiz-integration-framework` |
-| **4** | `frontend/src/features/automatic-scoring/` | Result Validation, Scoring Engine, Points Ledger, Deductions | Person 4 | `feature/automatic-scoring` |
-| **5** | `frontend/src/features/leaderboard/` | Live Ranks, Cumulative Totals, Analytics, Winner Declaration | Person 5 | `feature/leaderboard` |
-| **6** | `frontend/src/features/testing-and-deployment/` | Multi-user QA, Security, Idempotency, E2E, CI/CD Pipeline | Person 6 | `feature/testing-and-deployment` |
+| **1** | `frontend/src/features/participant-system/` | QR Registration, Participant ID, Returning Detection, Dashboard | Srikirti | `feature/participant-system` |
+| **2** | `frontend/src/features/admin-system/` | Admin Auth, Activity Management, Offline Points, Adjustments | Suvradeep | `feature/admin-system` |
+| **3** | `frontend/src/features/quiz-integration-framework/` | Provider Adapters, Quiz Launch, Ingestion, Matching | Ashwin | `feature/quiz-integration-framework` |
+| **4** | `frontend/src/features/automatic-scoring/` | Result Validation, Scoring Engine, Points Ledger, Deductions | Divya | `feature/automatic-scoring` |
+| **5** | `frontend/src/features/leaderboard/` | Live Ranks, Cumulative Totals, Analytics, Winner Declaration | Priyanshu | `feature/leaderboard` |
+| **6** | `frontend/src/features/testing-and-deployment/` | Multi-user QA, Security, Idempotency, E2E, CI/CD Pipeline | Naivedya | `feature/testing-and-deployment` |
 
 ---
 

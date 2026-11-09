@@ -1,7 +1,7 @@
 # Module 3: Quiz Integration Framework
 
 - **Phase:** 3
-- **Owner:** Person 3
+- **Owner:** Ashwin
 - **Git Branch:** `feature/quiz-integration-framework`
 - **Directories:**
   - `frontend/src/features/quiz-integration-framework/`
@@ -45,5 +45,5 @@ quiz-integration-framework/
 - **Primary Tables:** `quiz_providers`, `quiz_integrations`, `quiz_attempts`, `quiz_results`
 - **Endpoints:**
   - `POST /api/quiz/launch`
-  - `POST /api/quiz/results` (Ingestion point forwarded to Person 4 scoring engine)
+  - `POST /api/quiz/results` (Ingestion point forwarded to Divya scoring engine)
 - **Contract Reference:** `shared/contracts/quiz.contract.md`

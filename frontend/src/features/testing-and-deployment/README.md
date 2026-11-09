@@ -1,7 +1,7 @@
 # Module 6: Testing and Deployment
 
 - **Phase:** 6
-- **Owner:** Person 6
+- **Owner:** Naivedya
 - **Git Branch:** `feature/testing-and-deployment`
 - **Directories:**
   - `frontend/src/features/testing-and-deployment/`

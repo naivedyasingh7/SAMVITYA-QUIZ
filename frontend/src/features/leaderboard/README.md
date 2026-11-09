@@ -1,7 +1,7 @@
 # Module 5: Leaderboard
 
 - **Phase:** 5
-- **Owner:** Person 5
+- **Owner:** Priyanshu
 - **Git Branch:** `feature/leaderboard`
 - **Directory:** `frontend/src/features/leaderboard/`
 

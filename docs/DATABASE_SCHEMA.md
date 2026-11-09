@@ -30,7 +30,7 @@ erDiagram
 
 ## 📋 Table Definitions
 
-### 1. `participants` (Owner: Person 1)
+### 1. `participants` (Owner: Srikirti)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Internal database identity |
@@ -45,7 +45,7 @@ erDiagram
 
 ---
 
-### 2. `admins` (Owner: Person 2)
+### 2. `admins` (Owner: Suvradeep)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, REFERENCES auth.users(id) | Supabase auth user reference |
@@ -57,7 +57,7 @@ erDiagram
 
 ---
 
-### 3. `activities` (Owner: Person 2)
+### 3. `activities` (Owner: Suvradeep)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Activity unique identifier |
@@ -72,7 +72,7 @@ erDiagram
 
 ---
 
-### 4. `quiz_providers` (Owner: Person 3)
+### 4. `quiz_providers` (Owner: Ashwin)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | VARCHAR(32) | PRIMARY KEY | Provider identifier (e.g., `mock`, `kahoot`, `wayground`) |
@@ -83,7 +83,7 @@ erDiagram
 
 ---
 
-### 5. `quiz_integrations` (Owner: Person 3)
+### 5. `quiz_integrations` (Owner: Ashwin)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Integration record ID |
@@ -96,7 +96,7 @@ erDiagram
 
 ---
 
-### 6. `quiz_attempts` (Owner: Person 3)
+### 6. `quiz_attempts` (Owner: Ashwin)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique attempt tracking ID |
@@ -108,7 +108,7 @@ erDiagram
 
 ---
 
-### 7. `quiz_results` (Owner: Person 3)
+### 7. `quiz_results` (Owner: Ashwin)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Internal result ID |
@@ -126,7 +126,7 @@ erDiagram
 
 ---
 
-### 8. `scoring_rules` (Owner: Person 4)
+### 8. `scoring_rules` (Owner: Divya)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Rule unique ID |
@@ -137,7 +137,7 @@ erDiagram
 
 ---
 
-### 9. `points_transactions` (Owner: Person 4)
+### 9. `points_transactions` (Owner: Divya)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Transaction ID |
@@ -152,7 +152,7 @@ erDiagram
 
 ---
 
-### 10. `leaderboard` (Owner: Person 5)
+### 10. `leaderboard` (Owner: Priyanshu)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `participant_id` | UUID | PRIMARY KEY, REFERENCES participants(id) | Participant reference |
@@ -164,7 +164,7 @@ erDiagram
 
 ---
 
-### 11. `winner_declarations` (Owner: Person 5)
+### 11. `winner_declarations` (Owner: Priyanshu)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Declaration identifier |

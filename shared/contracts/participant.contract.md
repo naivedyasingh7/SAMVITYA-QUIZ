@@ -1,6 +1,6 @@
 # Participant Interface Contract
 
-- **Owner:** Person 1 (`frontend/src/features/participant-system/`)
+- **Owner:** Srikirti (`frontend/src/features/participant-system/`)
 - **Key Tables:** `participants`
 - **Exported Methods / Components:**
   - `participantService.registerParticipant(data)`

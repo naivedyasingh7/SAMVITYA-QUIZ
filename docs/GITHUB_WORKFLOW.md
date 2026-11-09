@@ -8,12 +8,12 @@ To ensure high development velocity without collisions among 6 developers, follo
 
 | Developer | Responsibility | Branch Name |
 |---|---|---|
-| **Person 1** | Participant System | `feature/participant-system` |
-| **Person 2** | Admin System | `feature/admin-system` |
-| **Person 3** | Quiz Integration Framework | `feature/quiz-integration-framework` |
-| **Person 4** | Automatic Scoring Engine | `feature/automatic-scoring` |
-| **Person 5** | Leaderboard & Analytics | `feature/leaderboard` |
-| **Person 6** | Testing & Deployment | `feature/testing-and-deployment` |
+| **Srikirti** | Participant System | `feature/participant-system` |
+| **suvradeep** | Admin System | `feature/admin-system` |
+| **Ashwin** | Quiz Integration Framework | `feature/quiz-integration-framework` |
+| **Divya** | Automatic Scoring Engine | `feature/automatic-scoring` |
+| **Priyanshu** | Leaderboard & Analytics | `feature/leaderboard` |
+| **Naivedya** | Testing & Deployment | `feature/testing-and-deployment` |
 
 ---
 
@@ -37,12 +37,12 @@ git rebase origin/develop
 
 ### Step 3: Work Only in Your Assigned Folder
 Only edit files within your feature directory:
-- Person 1: `frontend/src/features/participant-system/`
-- Person 2: `frontend/src/features/admin-system/`
-- Person 3: `frontend/src/features/quiz-integration-framework/`
-- Person 4: `frontend/src/features/automatic-scoring/`
-- Person 5: `frontend/src/features/leaderboard/`
-- Person 6: `frontend/src/features/testing-and-deployment/` & `tests/`
+- Srikirti: `frontend/src/features/participant-system/`
+- Suvradeep: `frontend/src/features/admin-system/`
+- Ashwin: `frontend/src/features/quiz-integration-framework/`
+- Divya: `frontend/src/features/automatic-scoring/`
+- Priyanshu: `frontend/src/features/leaderboard/`
+- Naivedya: `frontend/src/features/testing-and-deployment/` & `tests/`
 
 ### Step 4: Commit Your Work
 ```bash

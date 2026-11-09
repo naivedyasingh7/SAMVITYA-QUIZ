@@ -1,7 +1,7 @@
 # Module 2: Admin System
 
 - **Phase:** 2
-- **Owner:** Person 2
+- **Owner:** Suvradeep
 - **Git Branch:** `feature/admin-system`
 - **Directory:** `frontend/src/features/admin-system/`
 

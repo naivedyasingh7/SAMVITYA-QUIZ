@@ -1,7 +1,7 @@
 # Module 1: Participant System
 
 - **Phase:** 1
-- **Owner:** Person 1
+- **Owner:** Srikirti
 - **Git Branch:** `feature/participant-system`
 - **Directory:** `frontend/src/features/participant-system/`
 
