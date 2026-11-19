@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { Navbar } from '../../shared/components/Navbar.jsx';
-import { Footer } from '../../shared/components/Footer.jsx';
-import { QRRegistrationModal } from '../../shared/components/QRRegistrationModal.jsx';
-import { QuizSimulatorModal } from '../../shared/components/QuizSimulatorModal.jsx';
-import { HeroSection } from './HeroSection.jsx';
-import { LiveStatsMarquee } from './LiveStatsMarquee.jsx';
-import { AboutSection } from './AboutSection.jsx';
-import { ModulesTrackSection } from './ModulesTrackSection.jsx';
+import { BackgroundMesh } from './BackgroundMesh.jsx';
+import { HeaderNav } from './HeaderNav.jsx';
+import { HeroHackX } from './HeroHackX.jsx';
+import { StatsArchiveSection } from './StatsArchiveSection.jsx';
+import { RegisterBannerSection } from './RegisterBannerSection.jsx';
+import { ThemesTracksSection } from './ThemesTracksSection.jsx';
 import { ActivitiesShowcase } from './ActivitiesShowcase.jsx';
 import { LeaderboardSection } from './LeaderboardSection.jsx';
 import { ArchitectureGuarantees } from './ArchitectureGuarantees.jsx';
 import { EventTimeline } from './EventTimeline.jsx';
 import { FAQSection } from './FAQSection.jsx';
+import { PartnersMarqueeSection } from './PartnersMarqueeSection.jsx';
+import { HackXFooter } from './HackXFooter.jsx';
+import { QRRegistrationModal } from '../../shared/components/QRRegistrationModal.jsx';
+import { QuizSimulatorModal } from '../../shared/components/QuizSimulatorModal.jsx';
 
 export default function LandingPage() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -24,36 +26,53 @@ export default function LandingPage() {
     setIsSimulatorOpen(true);
   };
 
-  const handlePointsAwarded = (points, result) => {
-    console.log(`Points awarded: +${points}`, result);
-  };
-
   return (
-    <div className="min-h-screen bg-[#030305] text-[#FAF8F5] selection:bg-purple-600 selection:text-white flex flex-col">
-      {/* Floating Navbar */}
-      <Navbar
-        onOpenRegister={() => setIsRegisterOpen(true)}
-        onOpenSimulator={() => setIsSimulatorOpen(true)}
-      />
+    <div className="relative min-h-screen text-[#FAF8F5] selection:bg-purple-600 selection:text-white overflow-x-hidden font-sans">
+      
+      {/* 1. Exact HackX Background (Moving Gradient Geometric Mark + Radial Gradient + Noise) */}
+      <BackgroundMesh />
 
-      {/* Main Sections */}
-      <main className="flex-1">
-        <HeroSection
+      {/* 2. Exact HackX Header with MENU Trigger & Fullscreen Overlay */}
+      <HeaderNav onOpenRegister={() => setIsRegisterOpen(true)} />
+
+      {/* 3. Main Page Flow */}
+      <main className="relative z-10 flex-grow">
+        {/* Exact HackX Hero Stack */}
+        <HeroHackX
           onOpenRegister={() => setIsRegisterOpen(true)}
           onOpenSimulator={() => setIsSimulatorOpen(true)}
         />
-        <LiveStatsMarquee />
-        <AboutSection onOpenRegister={() => setIsRegisterOpen(true)} />
-        <ModulesTrackSection />
+
+        {/* Exact HackX Stats Archive Slider with Left Rail Nav & Giant Numerals */}
+        <StatsArchiveSection />
+
+        {/* Exact HackX Register Gradient Banner */}
+        <RegisterBannerSection onOpenRegister={() => setIsRegisterOpen(true)} />
+
+        {/* Exact HackX Themes & Tracks with Horizontal Marquee & 3D Split-Screen Explorer */}
+        <ThemesTracksSection />
+
+        {/* Activities & Quizzes Arena */}
         <ActivitiesShowcase onLaunchActivity={handleLaunchActivity} />
+
+        {/* Live Leaderboard & Top 3 Podium */}
         <LeaderboardSection onOpenSimulator={() => setIsSimulatorOpen(true)} />
+
+        {/* System Architecture & Technical Guarantees */}
         <ArchitectureGuarantees />
+
+        {/* Event Schedule Timeline */}
         <EventTimeline />
+
+        {/* FAQs */}
         <FAQSection />
+
+        {/* Exact HackX Partners / Powered By Section */}
+        <PartnersMarqueeSection />
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Exact HackX Footer ("Let's create future together" + 2-Column Team Grid) */}
+      <HackXFooter />
 
       {/* Interactive Modals */}
       <QRRegistrationModal
@@ -67,8 +86,8 @@ export default function LandingPage() {
         onClose={() => setIsSimulatorOpen(false)}
         activity={selectedActivity}
         participant={currentParticipant}
-        onPointsAwarded={handlePointsAwarded}
       />
+
     </div>
   );
 }
