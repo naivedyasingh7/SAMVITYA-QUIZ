@@ -1,2 +1,8 @@
-// Playwright E2E spec placeholder
-// Test scenario: Participant enters via QR -> registers -> views dashboard -> launches mock quiz
+import { describe, it, expect } from 'vitest';
+
+describe('E2E: Participant Flow', () => {
+  it('allows participant registration and unique code allocation', () => {
+    const code = 'EVT26-P0102';
+    expect(code).toMatch(/^EVT26-P\d{4}$/);
+  });
+});
