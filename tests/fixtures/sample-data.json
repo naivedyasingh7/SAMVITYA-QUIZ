@@ -1,0 +1,48 @@
+{
+  "participants": [
+    {
+      "id": "11111111-aaaa-bbbb-cccc-000000000001",
+      "participant_code": "EVT26-P0101",
+      "full_name": "Alice Johnson",
+      "email": "alice@example.com"
+    },
+    {
+      "id": "22222222-aaaa-bbbb-cccc-000000000002",
+      "participant_code": "EVT26-P0102",
+      "full_name": "Bob Smith",
+      "email": "bob@example.com"
+    },
+    {
+      "id": "33333333-aaaa-bbbb-cccc-000000000003",
+      "participant_code": "EVT26-P0103",
+      "full_name": "Charlie Davis",
+      "email": "charlie@example.com"
+    }
+  ],
+  "activities": [
+    {
+      "id": "act-01",
+      "title": "General Trivia",
+      "activity_type": "online_quiz",
+      "max_points": 1000
+    },
+    {
+      "id": "act-02",
+      "title": "Laser Maze",
+      "activity_type": "offline_game",
+      "max_points": 500
+    }
+  ],
+  "mockResults": [
+    {
+      "attempt_id": "att-01",
+      "participant_id": "11111111-aaaa-bbbb-cccc-000000000001",
+      "activity_id": "act-01",
+      "provider": "mock",
+      "external_result_id": "RES-FIX-001",
+      "raw_score": 9000,
+      "max_score": 10000,
+      "completion_status": "completed"
+    }
+  ]
+}
