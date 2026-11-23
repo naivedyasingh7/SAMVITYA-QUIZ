@@ -1,21 +1,20 @@
 /**
+ * Shared Type Definitions: Participant Module
+ *
  * @typedef {Object} Participant
- * @property {string} id - Database UUID
- * @property {string} participant_code - Human readable code (e.g., 'EVT26-P0102')
- * @property {string} full_name - Participant's full legal/preferred name
- * @property {string} email - Verified email address
- * @property {string} [phone] - Optional phone number
- * @property {string} [organization] - School, company, or team name
- * @property {string} [avatar_url] - URL to profile avatar
- * @property {'active'|'disqualified'|'withdrawn'} status - Current status
- * @property {string} created_at - ISO 8601 timestamp
- */
-
-/**
- * @typedef {Object} ParticipantRegistrationPayload
+ * @property {string} id - UUID primary key
+ * @property {string} full_name - Participant full name
+ * @property {string} email - Unique email address
+ * @property {string} participant_code - Formatted code e.g. EVT26-P0102
+ * @property {string} qr_code_data - Payload embedded inside QR code
+ * @property {string} [phone]
+ * @property {string} [organization]
+ * @property {string} created_at - Registration ISO timestamp
+ *
+ * @typedef {Object} CreateParticipantInput
  * @property {string} full_name
  * @property {string} email
  * @property {string} [phone]
  * @property {string} [organization]
  */
-module.exports = {};
+export default {};

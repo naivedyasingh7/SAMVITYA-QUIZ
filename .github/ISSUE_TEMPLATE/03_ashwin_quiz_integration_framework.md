@@ -12,10 +12,10 @@ assignees: ""
 ---
 
 ### 🎯 Key Responsibilities (From Roadmap Image)
-- [ ] **Provider Adapter Architecture:** Extensible `BaseQuizProvider` abstract class with concrete `MockQuizProvider`.
-- [ ] **Quiz Launch & Attempt Tracking:** Generate tracking attempt IDs (`att-xxxx`) and launch URLs.
-- [ ] **External Result Ingestion:** Ingest raw scores from quiz platform / simulation.
-- [ ] **Participant Matching:** Reliably map external completion payloads to internal participant UUIDs.
+- [x] **Provider Adapter Architecture:** Extensible `BaseQuizProvider` abstract class with concrete `MockQuizProvider`.
+- [x] **Quiz Launch & Attempt Tracking:** Generate tracking attempt IDs (`att-xxxx`) and launch URLs.
+- [x] **External Result Ingestion:** Ingest raw scores from quiz platform / simulation.
+- [x] **Participant Matching:** Reliably map external completion payloads to internal participant UUIDs.
 
 ---
 

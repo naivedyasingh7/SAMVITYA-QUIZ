@@ -1,21 +1,25 @@
-import { validatePointsTransaction } from '../../../../shared/validators/points.validator.js';
+import { validatePointsTransaction } from '../../../../../shared/validators/points.validator.js';
 
 export const pointsService = {
   /**
-   * Writes an immutable transaction to the ledger.
-   * @param {import('../../../../shared/types/points.types.js').PointsTransaction} tx
+   * Records a validated points transaction in the event ledger.
+   * @param {Object} transaction
    */
-  async recordTransaction(tx) {
-    const validation = validatePointsTransaction(tx);
+  async recordTransaction(transaction) {
+    const validation = validatePointsTransaction(transaction);
     if (!validation.isValid) {
-      throw new Error(`Invalid transaction: ${validation.errors.join(', ')}`);
+      throw new Error(`Points transaction validation failed: ${validation.errors.join(', ')}`);
     }
 
-    console.log('Writing transaction to points_transactions:', tx);
-    return {
-      id: `tx-${Date.now()}`,
-      ...tx,
+    const recorded = {
+      id: `pt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      ...transaction,
       created_at: new Date().toISOString()
+    };
+
+    return {
+      success: true,
+      transaction: recorded
     };
   }
 };

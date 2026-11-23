@@ -1,1 +1,1 @@
-export { validateQuizResult } from '../../../../shared/validators/quizResult.validator.js';
+export { validateQuizResult } from '../../../../../shared/validators/quizResult.validator.js';

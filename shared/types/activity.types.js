@@ -1,13 +1,14 @@
 /**
+ * Shared Type Definitions: Activity Module
+ *
  * @typedef {Object} Activity
- * @property {string} id - Database UUID
- * @property {string} title - Activity display title
- * @property {string} [description] - Full instructions
- * @property {'online_quiz'|'offline_game'|'bonus'} activity_type - Type classification
- * @property {number} max_points - Maximum point ceiling
- * @property {boolean} is_active - Availability toggle
+ * @property {string} id - UUID primary key
+ * @property {string} title - Activity display name
+ * @property {'quiz'|'offline_challenge'|'workshop'|'puzzle'} type
+ * @property {number} max_points - Maximum points awardable
+ * @property {boolean} is_active - Status flag
  * @property {string} [starts_at] - Scheduled opening timestamp
  * @property {string} [ends_at] - Scheduled closing timestamp
  * @property {string} created_at - Creation timestamp
  */
-module.exports = {};
+export default {};

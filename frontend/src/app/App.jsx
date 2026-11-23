@@ -3,16 +3,54 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './providers/AuthProvider.jsx';
 import { AppRoutes } from './routes.jsx';
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('App Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: '600px', margin: '2rem auto', background: '#0e121b', border: '1px solid #fee2e2', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', color: '#fff' }}>
+          <h2 style={{ color: '#ef4444', margin: '0 0 1rem' }}>Application Error</h2>
+          <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '1rem' }}>Something prevented the page from rendering properly:</p>
+          <pre style={{ background: 'rgba(239,68,68,0.1)', padding: '1rem', borderRadius: '8px', color: '#f87171', fontSize: '12px', overflowX: 'auto' }}>
+            {this.state.error?.toString()}
+          </pre>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ marginTop: '1rem', padding: '0.5rem 1rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 /**
  * Main application shell.
- * Connects global providers and router.
+ * Connects global providers and router with error boundary protection.
  */
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

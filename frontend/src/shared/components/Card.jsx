@@ -2,9 +2,15 @@ import React from 'react';
 
 export function Card({ title, children, className = '' }) {
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 ${className}`}>
-      {title && <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>}
+    <section className={`glass-card p-6 ${className}`}>
+      {title && (
+        <header className="mb-4 pb-3 border-b border-white/[0.06] flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-100 tracking-tight">
+            {title}
+          </h3>
+        </header>
+      )}
       {children}
-    </div>
+    </section>
   );
 }
