@@ -3,17 +3,20 @@ import { AdminSidebar } from '../components/AdminSidebar.jsx';
 import { adminService } from '../services/adminService.js';
 import { activityService } from '../services/activityService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
-import { Award, CheckCircle, Search, Users, Activity, Sparkles } from 'lucide-react';
+import { QRScannerModal } from '../../../shared/components/QRScannerModal.jsx';
+import { Award, CheckCircle, Search, Camera, QrCode, Sparkles, User, AlertCircle } from 'lucide-react';
 
 export default function AwardPoints() {
   const [participants, setParticipants] = useState([]);
   const [activities, setActivities] = useState([]);
   const [selectedParticipantId, setSelectedParticipantId] = useState('');
   const [selectedActivityId, setSelectedActivityId] = useState('');
-  const [points, setPoints] = useState(100);
-  const [reason, setReason] = useState('');
+  const [points, setPoints] = useState(20);
+  const [reason, setReason] = useState('Treasure Hunt: Clue completion');
+  const [adminName, setAdminName] = useState('admin-001');
   const [statusMessage, setStatusMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -23,13 +26,25 @@ export default function AwardPoints() {
       );
       setParticipants(pList);
       setActivities(aList);
-      if (pList.length > 0) setSelectedParticipantId(pList[0].participant_id || pList[0].id);
-      if (aList.length > 0) setSelectedActivityId(aList[0].id);
+      if (pList.length > 0 && !selectedParticipantId) {
+        setSelectedParticipantId(pList[0].participant_id || pList[0].id);
+      }
+      if (aList.length > 0 && !selectedActivityId) {
+        setSelectedActivityId(aList[0].id);
+      }
     };
     init();
     const unsub = eventStore.subscribe(() => init());
     return unsub;
   }, []);
+
+  const handleParticipantFound = (matched) => {
+    setSelectedParticipantId(matched.id);
+    setStatusMessage({
+      type: 'success',
+      text: `QR Scanned! Selected ${matched.username} (${matched.full_name})`
+    });
+  };
 
   const handleAward = async (e) => {
     e.preventDefault();
@@ -37,18 +52,22 @@ export default function AwardPoints() {
     setIsSubmitting(true);
     setStatusMessage(null);
 
+    const chosenActivity = activities.find((a) => a.id === selectedActivityId);
+
     try {
       await adminService.awardOfflinePoints({
         participant_id: selectedParticipantId,
         activity_id: selectedActivityId || null,
         points: Number(points),
-        reason: reason.trim() || 'Offline challenge completion'
+        reason: reason.trim() || `${chosenActivity?.title || 'Offline Game'}: Points awarded`,
+        admin_id: adminName.trim() || 'admin-001'
       });
+
+      const matchedPart = participants.find((p) => (p.participant_id || p.id) === selectedParticipantId);
       setStatusMessage({
         type: 'success',
-        text: `Successfully awarded +${points} points to selected participant!`
+        text: `Successfully added +${points} points to ${matchedPart?.username || 'Competitor'}! Leaderboard updated.`
       });
-      setReason('');
     } catch (err) {
       setStatusMessage({
         type: 'error',
@@ -59,7 +78,7 @@ export default function AwardPoints() {
     }
   };
 
-  const selectedParticipant = participants.find(
+  const currentParticipant = participants.find(
     (p) => (p.participant_id || p.id) === selectedParticipantId
   );
 
@@ -68,19 +87,30 @@ export default function AwardPoints() {
       <AdminSidebar />
 
       <div className="flex-1 p-6 lg:p-8 space-y-6 max-w-4xl">
-        <div className="border-b border-white/[0.08] pb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <Award className="w-4 h-4 text-indigo-400" />
-            <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-300 font-semibold">
-              Event Booth / Coordinator Portal
-            </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Award className="w-4 h-4 text-indigo-400" />
+              <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-300 font-semibold">
+                Offline Game Points Console
+              </span>
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-tight font-space">
+              Award & Record Offline Game Points
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Scan participant QR (QR 2) or choose username (P001, P002...), select game, and add points instantly.
+            </p>
           </div>
-          <h2 className="text-2xl font-black text-white tracking-tight font-space">
-            Award Offline Game & Challenge Points
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Credit verified points for in-person escape rooms, hardware debugging labs, and rapid design sprints.
-          </p>
+
+          <button
+            type="button"
+            onClick={() => setIsScannerOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 self-start sm:self-auto active:scale-95"
+          >
+            <Camera className="w-4 h-4" />
+            <span>Scan Participant QR Pass</span>
+          </button>
         </div>
 
         {statusMessage && (
@@ -91,41 +121,55 @@ export default function AwardPoints() {
                 : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
             }`}
           >
-            {statusMessage.type === 'success' && <CheckCircle className="w-4 h-4" />}
+            {statusMessage.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
             <span>{statusMessage.text}</span>
           </div>
         )}
 
-        <div className="glass-surface p-6 sm:p-8 rounded-2xl border border-white/10 shadow-2xl">
+        <div className="glass-surface p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl">
           <form onSubmit={handleAward} className="space-y-6 text-xs">
             {/* Participant Selector */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono mb-2">
-                Select Competitor *
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono">
+                  Participant *
+                </label>
+                {currentParticipant && (
+                  <span className="text-xs font-mono text-indigo-300 font-bold">
+                    Current Total: {currentParticipant.total_points || 0} pts (Rank #{currentParticipant.rank || '-'})
+                  </span>
+                )}
+              </div>
               <select
                 value={selectedParticipantId}
                 onChange={(e) => setSelectedParticipantId(e.target.value)}
-                className="w-full glass-input px-3.5 py-2.5 text-xs text-white bg-slate-900 rounded-xl"
+                className="w-full glass-input px-3.5 py-3 text-xs text-white bg-slate-900 rounded-xl"
                 required
               >
-                {participants.map((p) => (
-                  <option key={p.participant_id || p.id} value={p.participant_id || p.id}>
-                    {p.full_name} — {p.participant_code} ({p.organization || 'Club'}) | Current: {p.total_points || 0} pts
-                  </option>
-                ))}
+                {participants.map((p) => {
+                  const u = p.username || p.participant_code || 'P000';
+                  return (
+                    <option key={p.participant_id || p.id} value={p.participant_id || p.id}>
+                      {u} — {p.full_name} ({p.organization || 'Club'}) | Total: {p.total_points || 0} pts
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
-            {/* Activity Selector */}
+            {/* Offline Game Selection */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono mb-2">
-                Challenge / Booth Activity
+                Offline Game / Challenge *
               </label>
               <select
                 value={selectedActivityId}
-                onChange={(e) => setSelectedActivityId(e.target.value)}
-                className="w-full glass-input px-3.5 py-2.5 text-xs text-white bg-slate-900 rounded-xl"
+                onChange={(e) => {
+                  setSelectedActivityId(e.target.value);
+                  const act = activities.find((a) => a.id === e.target.value);
+                  if (act) setReason(`${act.title}: Completed task`);
+                }}
+                className="w-full glass-input px-3.5 py-3 text-xs text-white bg-slate-900 rounded-xl"
               >
                 {activities.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -138,10 +182,10 @@ export default function AwardPoints() {
             {/* Points with Preset Chips */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono mb-2">
-                Points Value *
+                Points Earned *
               </label>
               <div className="flex flex-wrap gap-2 mb-3">
-                {[50, 100, 250, 500, 750, 1000].map((val) => (
+                {[10, 20, 30, 40, 50, 100].map((val) => (
                   <button
                     key={val}
                     type="button"
@@ -159,7 +203,7 @@ export default function AwardPoints() {
               <input
                 type="number"
                 min="1"
-                max="5000"
+                max="1000"
                 value={points}
                 onChange={(e) => setPoints(e.target.value)}
                 className="w-full glass-input px-3.5 py-2.5 text-white font-mono rounded-xl"
@@ -167,31 +211,54 @@ export default function AwardPoints() {
               />
             </div>
 
-            {/* Reason */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono mb-2">
-                Audit Justification & Notes *
-              </label>
-              <input
-                type="text"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g. Cleared hardware escape room terminal with zero hints"
-                className="w-full glass-input px-3.5 py-2.5 text-xs text-white rounded-xl"
-                required
-              />
+            {/* Reason & Admin Identifier */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono mb-2">
+                  Justification / Activity Detail *
+                </label>
+                <input
+                  type="text"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="e.g. Treasure Hunt: Stage 2 puzzle solved"
+                  className="w-full glass-input px-3.5 py-2.5 text-xs text-white rounded-xl"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono mb-2">
+                  Admin Coordinator ID *
+                </label>
+                <input
+                  type="text"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  placeholder="e.g. admin-001 or staff name"
+                  className="w-full glass-input px-3.5 py-2.5 text-xs text-white rounded-xl"
+                  required
+                />
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30 hover:opacity-95 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30 hover:opacity-95 transition-all flex items-center justify-center gap-2 active:scale-98"
             >
               <Award className="w-4 h-4" />
-              <span>{isSubmitting ? 'Recording Points...' : 'Verify and Award Points'}</span>
+              <span>{isSubmitting ? 'Updating Database...' : 'Add Points & Sync Leaderboard'}</span>
             </button>
           </form>
         </div>
+
+        {/* QR Scanner Modal */}
+        <QRScannerModal
+          isOpen={isScannerOpen}
+          onClose={() => setIsScannerOpen(false)}
+          onParticipantFound={handleParticipantFound}
+        />
       </div>
     </div>
   );

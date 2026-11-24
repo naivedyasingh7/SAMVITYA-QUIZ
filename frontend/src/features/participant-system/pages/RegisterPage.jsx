@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const [tab, setTab] = useState('login'); // 'login' | 'register'
   
   // Login form state
-  const [codeOrEmail, setCodeOrEmail] = useState('EVT26-P0102');
+  const [codeOrEmail, setCodeOrEmail] = useState('P001');
   
   // Registration form state
   const [fullName, setFullName] = useState('');
@@ -26,14 +26,14 @@ export default function RegisterPage() {
     e?.preventDefault();
     setError(null);
     if (!codeOrEmail.trim()) {
-      setError('Please provide your Participant Code or Email.');
+      setError('Please provide your Participant Username or Email.');
       return;
     }
 
     setIsLoading(true);
     try {
       loginParticipant({ codeOrEmail: codeOrEmail.trim() });
-      navigate('/quiz-session');
+      navigate('/participant/dashboard');
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
@@ -56,7 +56,7 @@ export default function RegisterPage() {
         email: regEmail.trim(),
         organization: organization.trim()
       });
-      navigate('/quiz-session');
+      navigate('/participant/dashboard');
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -65,8 +65,8 @@ export default function RegisterPage() {
   };
 
   const handleQuickDemoParticipant = () => {
-    loginParticipant({ codeOrEmail: 'EVT26-P0102' });
-    navigate('/quiz-session');
+    loginParticipant({ codeOrEmail: 'P001' });
+    navigate('/participant/dashboard');
   };
 
   return (
@@ -119,14 +119,14 @@ export default function RegisterPage() {
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
               <label className="block font-medium text-slate-300 uppercase tracking-wider mb-1.5 text-[11px]">
-                Participant Code or Email
+                Participant Username or Email
               </label>
               <input
                 type="text"
                 required
                 value={codeOrEmail}
                 onChange={(e) => setCodeOrEmail(e.target.value)}
-                placeholder="e.g. EVT26-P0102 or alex@example.com"
+                placeholder="e.g. P001 or alex.mercer@example.com"
                 className="glass-input w-full px-3 py-2 text-xs font-mono"
               />
             </div>
@@ -136,7 +136,7 @@ export default function RegisterPage() {
               disabled={isLoading}
               className="w-full py-2.5 text-xs font-semibold"
             >
-              {isLoading ? 'Verifying...' : 'Sign In & Start Quiz'}
+              {isLoading ? 'Verifying...' : 'Sign In to Dashboard'}
             </Button>
           </form>
         ) : (
@@ -177,7 +177,7 @@ export default function RegisterPage() {
                 type="text"
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
-                placeholder="Alpha University"
+                placeholder="VIT Technical Guild"
                 className="glass-input w-full px-3 py-2 text-xs"
               />
             </div>
@@ -187,7 +187,7 @@ export default function RegisterPage() {
               disabled={isLoading}
               className="w-full py-2.5 text-xs font-semibold"
             >
-              {isLoading ? 'Creating Code...' : 'Register & Join Quiz'}
+              {isLoading ? 'Generating Username...' : 'Register & Get Participant Pass (P00x)'}
             </Button>
           </form>
         )}
@@ -199,7 +199,7 @@ export default function RegisterPage() {
             onClick={handleQuickDemoParticipant}
             className="w-full py-2 text-xs"
           >
-            One-Click Demo Participant (Alex Mercer)
+            One-Click Demo Participant (P001 - Alex Mercer)
           </Button>
 
           <div className="text-center text-xs text-slate-400 pt-1">

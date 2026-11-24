@@ -1,79 +1,178 @@
-import React from 'react';
-import { Award, PlusCircle, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Award, PlusCircle, MinusCircle, Eye, Search, CheckCircle, X } from 'lucide-react';
+import { eventStore } from '../../../shared/services/eventStore.js';
 
-export function ParticipantTable({ participants = [], onAwardPoints }) {
+export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoints }) {
+  const [selectedProfile, setSelectedProfile] = useState(null);
+
+  const handleOpenProfile = (p) => {
+    const history = eventStore.getTransactions({ participantId: p.participant_id || p.id });
+    setSelectedProfile({ ...p, history });
+  };
+
   return (
-    <div className="overflow-x-auto glass-card border border-white/10 shadow-2xl">
-      <table className="min-w-full divide-y divide-white/[0.06] text-left text-xs">
-        <thead className="bg-white/[0.02] text-slate-400 font-mono uppercase text-[10px]">
-          <tr>
-            <th className="py-3 px-4">Rank</th>
-            <th className="py-3 px-4">Competitor</th>
-            <th className="py-3 px-4">Code</th>
-            <th className="py-3 px-4">Guild / Organization</th>
-            <th className="py-3 px-4">Quiz Pts</th>
-            <th className="py-3 px-4">Offline Pts</th>
-            <th className="py-3 px-4">Total Score</th>
-            <th className="py-3 px-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-white/[0.04] text-slate-300">
-          {participants.length === 0 ? (
+    <>
+      <div className="overflow-x-auto glass-card border border-white/10 shadow-2xl">
+        <table className="min-w-full divide-y divide-white/[0.06] text-left text-xs">
+          <thead className="bg-white/[0.02] text-slate-400 font-mono uppercase text-[10px]">
             <tr>
-              <td colSpan="8" className="py-8 text-center text-xs text-slate-500">
-                No participants registered yet.
-              </td>
+              <th className="py-3 px-4">Username</th>
+              <th className="py-3 px-4">Name</th>
+              <th className="py-3 px-4 text-right">Quiz Points</th>
+              <th className="py-3 px-4 text-right">Game Points</th>
+              <th className="py-3 px-4 text-right font-bold">Total Points</th>
+              <th className="py-3 px-4 text-center">Actions</th>
             </tr>
-          ) : (
-            participants.map((p, idx) => (
-              <tr key={p.participant_id || p.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-amber-300">
-                  #{p.rank || idx + 1}
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center font-bold text-xs text-indigo-300">
-                      {p.full_name?.charAt(0) || 'P'}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-white block">{p.full_name}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{p.email}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-3 px-4 font-mono text-indigo-300 font-medium">
-                  {p.participant_code}
-                </td>
-                <td className="py-3 px-4 text-slate-400">
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-white/[0.04] border border-white/10">
-                    {p.organization || 'VIT Technical Guild'}
-                  </span>
-                </td>
-                <td className="py-3 px-4 font-mono text-purple-300">
-                  {p.quiz_points || 0}
-                </td>
-                <td className="py-3 px-4 font-mono text-emerald-300">
-                  {p.offline_points || 0}
-                </td>
-                <td className="py-3 px-4 font-mono font-black text-white text-sm">
-                  {p.total_points || 0}
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <button
-                    type="button"
-                    onClick={() => onAwardPoints?.(p)}
-                    className="px-2.5 py-1 rounded-md bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-200 border border-indigo-500/30 text-xs font-medium transition-colors inline-flex items-center gap-1"
-                  >
-                    <PlusCircle className="w-3 h-3" />
-                    <span>Award Pts</span>
-                  </button>
+          </thead>
+          <tbody className="divide-y divide-white/[0.04] text-slate-300">
+            {participants.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="py-8 text-center text-xs text-slate-500 font-mono">
+                  No competitors found.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              participants.map((p) => {
+                const username = p.username || p.participant_code || 'P000';
+                return (
+                  <tr key={p.participant_id || p.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-indigo-300 text-sm">
+                      {username}
+                    </td>
+                    <td className="py-3 px-4 font-medium text-white">
+                      {p.full_name}
+                      <span className="text-[10px] text-slate-500 block font-mono font-normal">
+                        {p.organization || 'VIT Guild'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-purple-300 font-semibold text-sm">
+                      {p.quiz_points || 0}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-emerald-300 font-semibold text-sm">
+                      {p.game_points ?? p.offline_points ?? 0}
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-black text-white text-base">
+                      {p.total_points || 0}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenProfile(p)}
+                          className="px-2 py-1 rounded-md bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border border-white/10 text-xs transition-colors inline-flex items-center gap-1"
+                          title="View Profile & Score History"
+                        >
+                          <Eye className="w-3 h-3 text-purple-400" />
+                          <span>Profile</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => onAwardPoints?.(p)}
+                          className="px-2 py-1 rounded-md bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/30 text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                          title="Add Offline Game Points"
+                        >
+                          <PlusCircle className="w-3 h-3 text-emerald-400" />
+                          <span>Add</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => onDeductPoints?.(p)}
+                          className="px-2 py-1 rounded-md bg-rose-600/20 hover:bg-rose-600/30 text-rose-200 border border-rose-500/30 text-xs font-semibold transition-colors inline-flex items-center gap-1"
+                          title="Deduct Game Points"
+                        >
+                          <MinusCircle className="w-3 h-3 text-rose-400" />
+                          <span>Deduct</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Profile Detail Modal */}
+      {selectedProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+          <div className="glass-surface max-w-lg w-full p-6 sm:p-7 rounded-3xl border border-indigo-500/30 shadow-2xl space-y-4 relative">
+            <button
+              type="button"
+              onClick={() => setSelectedProfile(null)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center font-bold text-lg text-white font-space">
+                {selectedProfile.username}
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-white">{selectedProfile.full_name}</h3>
+                <span className="text-xs text-slate-400 font-mono">
+                  {selectedProfile.email} • {selectedProfile.organization}
+                </span>
+              </div>
+            </div>
+
+            {/* Score Summary Box */}
+            <div className="grid grid-cols-3 gap-3 p-4 bg-white/[0.02] border border-white/10 rounded-2xl text-center">
+              <div>
+                <span className="text-[10px] uppercase font-mono text-slate-400 block">Quiz Points</span>
+                <span className="text-lg font-black font-mono text-purple-300">
+                  {selectedProfile.quiz_points || 0}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-mono text-slate-400 block">Game Points</span>
+                <span className="text-lg font-black font-mono text-emerald-300">
+                  {selectedProfile.game_points ?? selectedProfile.offline_points ?? 0}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-mono text-slate-400 block">Total Points</span>
+                <span className="text-xl font-black font-mono text-white">
+                  {selectedProfile.total_points || 0}
+                </span>
+              </div>
+            </div>
+
+            {/* Itemized Points Log */}
+            <div className="space-y-2">
+              <h4 className="font-bold text-xs text-white uppercase tracking-wider font-mono">
+                Itemized Activity History
+              </h4>
+              <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                {!selectedProfile.history || selectedProfile.history.length === 0 ? (
+                  <p className="text-xs text-slate-500 text-center py-4">No points logged yet.</p>
+                ) : (
+                  selectedProfile.history.map((h) => (
+                    <div
+                      key={h.id}
+                      className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <span className="font-medium text-white block">{h.reason}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          {new Date(h.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <span className={`font-mono font-bold ${h.points >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {h.points >= 0 ? `+${h.points}` : h.points} pts
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 export default ParticipantTable;

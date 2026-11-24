@@ -1,259 +1,318 @@
 /**
  * eventStore.js
  * Centralized, reactive state store and persistence engine for the samVITya '26
- * Event Points Management System.
+ * Real-Time Event Participant Management + Gamification System.
  *
  * Implements:
- * - Deterministic seed data for collegiate club participants, activities, and transactions.
- * - Reactive subscription mechanism (window CustomEvent / BroadcastChannel).
- * - Real-time leaderboard recomputation.
- * - Immutable transaction ledger.
- * - LocalStorage persistence with graceful fallback.
+ * - P00x username standard (P001, P002, P003...)
+ * - Separate tracking of Quiz Points vs Offline Game Points
+ * - Seed data matching event flow: Treasure Hunt, Stargazing Challenge, Tech Trivia
+ * - Two QR code system (Event Registration QR1 & Individual Participant QR2)
+ * - Reactive broadcast channel for live real-time sync across portals
  */
 
-const STORAGE_KEY_PARTICIPANTS = 'epms_participants_v2';
-const STORAGE_KEY_ACTIVITIES = 'epms_activities_v2';
-const STORAGE_KEY_TRANSACTIONS = 'epms_transactions_v2';
-const STORAGE_KEY_DECLARATION = 'epms_winner_declaration_v2';
+const STORAGE_KEY_PARTICIPANTS = 'epms_participants_v3';
+const STORAGE_KEY_ACTIVITIES = 'epms_activities_v3';
+const STORAGE_KEY_TRANSACTIONS = 'epms_transactions_v3';
+const STORAGE_KEY_DECLARATION = 'epms_winner_declaration_v3';
 const EVENT_NAME = 'epms_store_updated';
 
-// Default initial activities for the samVITya club championship
+// Available Offline Games and Online Quizzes
 const INITIAL_ACTIVITIES = [
   {
-    id: 'act-quiz-01',
-    title: 'Algorithmic Blitz: Dynamic Programming Duel',
+    id: 'act-quiz-trivia',
+    title: 'Online Quiz: Tech & CS Trivia',
     type: 'quiz',
-    max_points: 1000,
+    max_points: 100,
     is_active: true,
-    description: 'High-speed speed-coding & algorithmic puzzles assessing graph traversal, DP, and asymptotic complexity.',
+    description: 'High-speed speed-coding & computer science fundamentals quiz. Instant automated grading.',
     starts_at: '2026-11-20T09:00:00Z',
     ends_at: '2026-11-25T18:00:00Z',
     created_at: '2026-11-20T08:00:00Z'
   },
   {
-    id: 'act-quiz-02',
-    title: 'AI/ML Model Prompt Injection CTF',
+    id: 'act-quiz-algo',
+    title: 'Algorithmic Speed Duel',
     type: 'quiz',
-    max_points: 800,
+    max_points: 100,
     is_active: true,
-    description: 'Bypass guardrails, detect latent space anomalies, and solve generative AI challenges.',
+    description: 'Dynamic programming, graph traversal, and time complexity challenge.',
     starts_at: '2026-11-21T10:00:00Z',
     ends_at: '2026-11-25T20:00:00Z',
     created_at: '2026-11-20T08:00:00Z'
   },
   {
-    id: 'act-quiz-03',
-    title: 'Web3 & Smart Contract Security Audit',
-    type: 'quiz',
-    max_points: 1200,
-    is_active: true,
-    description: 'Identify reentrancy vulnerabilities, flash loan attack vectors, and optimize gas fees.',
-    starts_at: '2026-11-21T11:00:00Z',
-    ends_at: '2026-11-25T22:00:00Z',
-    created_at: '2026-11-20T08:00:00Z'
-  },
-  {
-    id: 'act-off-01',
-    title: 'Hardware Reverse Engineering Escape Room',
+    id: 'act-off-treasure',
+    title: 'Treasure Hunt',
     type: 'offline_challenge',
-    max_points: 500,
+    max_points: 50,
     is_active: true,
-    description: 'Live physical lab challenge: Oscilloscope debugging, UART packet interception, and breadboard hacking.',
+    description: 'Campus-wide physical riddle trail and QR clue discovery adventure.',
     starts_at: '2026-11-22T10:00:00Z',
-    ends_at: '2026-11-24T18:00:00Z',
+    ends_at: '2026-11-25T18:00:00Z',
     created_at: '2026-11-20T08:00:00Z'
   },
   {
-    id: 'act-off-02',
-    title: 'Rapid UI/UX Accessibility Duel',
+    id: 'act-off-stargazing',
+    title: 'Stargazing Challenge',
     type: 'offline_challenge',
-    max_points: 600,
+    max_points: 30,
     is_active: true,
-    description: '60-minute redesign sprint evaluated on WCAG AAA compliance, cognitive load, and micro-interactions.',
-    starts_at: '2026-11-22T14:00:00Z',
-    ends_at: '2026-11-25T14:00:00Z',
+    description: 'Astronomy club telescope observation, constellation mapping, and celestial quiz.',
+    starts_at: '2026-11-22T19:00:00Z',
+    ends_at: '2026-11-24T23:00:00Z',
     created_at: '2026-11-20T08:00:00Z'
   },
   {
-    id: 'act-off-03',
-    title: 'Autonomous Rover Obstacle Course',
+    id: 'act-off-hardware',
+    title: 'Hardware Escape Room',
     type: 'offline_challenge',
-    max_points: 750,
+    max_points: 50,
     is_active: true,
-    description: 'Robotics arena trial: LiDAR SLAM pathfinding, obstacle evasion, and precision waypoint navigation.',
-    starts_at: '2026-11-23T09:00:00Z',
+    description: 'Hands-on breadboard debugging, oscilloscope decoding, and circuit hacking.',
+    starts_at: '2026-11-23T10:00:00Z',
+    ends_at: '2026-11-25T17:00:00Z',
+    created_at: '2026-11-20T08:00:00Z'
+  },
+  {
+    id: 'act-off-robotics',
+    title: 'Robotics Obstacle Arena',
+    type: 'offline_challenge',
+    max_points: 60,
+    is_active: true,
+    description: 'Autonomous rover trial: LiDAR obstacle avoidance and precision track driving.',
+    starts_at: '2026-11-23T11:00:00Z',
     ends_at: '2026-11-25T17:00:00Z',
     created_at: '2026-11-20T08:00:00Z'
   }
 ];
 
-// Default initial participants
+// Seeded participants matching the user's exact specification & leaderboard
 const INITIAL_PARTICIPANTS = [
   {
     id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
+    username: 'P001',
     full_name: 'Alex Mercer',
     email: 'alex.mercer@example.com',
-    participant_code: 'EVT26-P0102',
+    participant_code: 'P001',
     organization: 'VIT Computer Science Club',
     track: 'AI & Systems',
+    status: 'Active',
     created_at: '2026-11-20T09:15:00Z'
   },
   {
     id: 'part-002-sarah',
+    username: 'P002',
     full_name: 'Sarah Lin',
     email: 'sarah.lin@example.com',
-    participant_code: 'EVT26-P0103',
+    participant_code: 'P002',
     organization: 'Cybersecurity Club',
     track: 'Cybersecurity',
+    status: 'Active',
     created_at: '2026-11-20T09:20:00Z'
   },
   {
     id: 'part-003-rohan',
+    username: 'P003',
     full_name: 'Rohan Verma',
     email: 'rohan.v@example.com',
-    participant_code: 'EVT26-P0104',
+    participant_code: 'P003',
     organization: 'ACM Student Chapter',
     track: 'Algorithms',
+    status: 'Active',
     created_at: '2026-11-20T09:30:00Z'
   },
   {
-    id: 'part-004-aisha',
-    full_name: 'Aisha Khan',
-    email: 'aisha.k@example.com',
-    participant_code: 'EVT26-P0105',
-    organization: 'Web3 Builders Collective',
-    track: 'Web3 & DeFi',
-    created_at: '2026-11-20T09:45:00Z'
+    id: 'part-008-tanya',
+    username: 'P008',
+    full_name: 'Tanya Gupta',
+    email: 'tanya.g@example.com',
+    participant_code: 'P008',
+    organization: 'Data Science Club',
+    track: 'Data Science',
+    status: 'Active',
+    created_at: '2026-11-20T09:40:00Z'
   },
   {
-    id: 'part-005-dev',
-    full_name: 'Dev Patel',
-    email: 'dev.patel@example.com',
-    participant_code: 'EVT26-P0106',
-    organization: 'Robotics & Automation Society',
+    id: 'part-014-vikram',
+    username: 'P014',
+    full_name: 'Vikram Aditya',
+    email: 'vikram.a@example.com',
+    participant_code: 'P014',
+    organization: 'Robotics Guild',
     track: 'Robotics',
+    status: 'Active',
+    created_at: '2026-11-20T09:50:00Z'
+  },
+  {
+    id: 'part-004-aisha',
+    username: 'P004',
+    full_name: 'Aisha Khan',
+    email: 'aisha.k@example.com',
+    participant_code: 'P004',
+    organization: 'Web3 Builders Collective',
+    track: 'Web3 & DeFi',
+    status: 'Active',
     created_at: '2026-11-20T10:00:00Z'
   },
   {
-    id: 'part-006-ananya',
-    full_name: 'Ananya Sharma',
-    email: 'ananya.s@example.com',
-    participant_code: 'EVT26-P0107',
+    id: 'part-005-dev',
+    username: 'P005',
+    full_name: 'Dev Patel',
+    email: 'dev.patel@example.com',
+    participant_code: 'P005',
     organization: 'Design & Code Guild',
     track: 'UI/UX Design',
+    status: 'Active',
     created_at: '2026-11-20T10:15:00Z'
-  },
-  {
-    id: 'part-007-karthik',
-    full_name: 'Karthik Subramanian',
-    email: 'karthik.s@example.com',
-    participant_code: 'EVT26-P0108',
-    organization: 'Open Source Community',
-    track: 'Cloud & DevOps',
-    created_at: '2026-11-20T10:30:00Z'
-  },
-  {
-    id: 'part-008-tanya',
-    full_name: 'Tanya Gupta',
-    email: 'tanya.g@example.com',
-    participant_code: 'EVT26-P0109',
-    organization: 'Data Science Club',
-    track: 'Data Science',
-    created_at: '2026-11-20T11:00:00Z'
   }
 ];
 
-// Initial seeded transactions
+// Seeded Transactions ensuring exact prompt points:
+// P008: Total 180 (Rank #1)
+// P014: Total 165 (Rank #2)
+// P001: Quiz: 100, Treasure Hunt: 30, Stargazing: 20 => Total: 150 (Rank #3)
+// P003: Quiz: 90, Offline Game: 10 => Total: 100
+// P002: Quiz: 65, Offline Game: 30 => Total: 95
 const INITIAL_TRANSACTIONS = [
+  // P008 (Rank #1, Total 180)
   {
-    id: 'pt-init-01',
-    participant_id: 'part-002-sarah',
-    activity_id: 'act-quiz-01',
-    points: 920,
+    id: 'pt-008-1',
+    participant_id: 'part-008-tanya',
+    activity_id: 'act-quiz-trivia',
+    points: 100,
     transaction_type: 'quiz_award',
-    reason: 'Algorithmic Blitz: 92/100 correct answers in 4 minutes',
-    created_at: '2026-11-21T12:00:00Z'
+    reason: 'Online quiz: Perfect score 100/100',
+    admin_id: 'system',
+    created_at: '2026-11-21T11:00:00Z'
   },
   {
-    id: 'pt-init-02',
-    participant_id: 'part-002-sarah',
-    activity_id: 'act-off-01',
-    points: 480,
+    id: 'pt-008-2',
+    participant_id: 'part-008-tanya',
+    activity_id: 'act-off-treasure',
+    points: 50,
     transaction_type: 'offline_challenge',
-    reason: 'Hardware Lab: Decoded UART firmware in record time',
-    created_at: '2026-11-22T11:30:00Z'
+    reason: 'Treasure Hunt: First team to unlock final chest',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T12:00:00Z'
   },
   {
-    id: 'pt-init-03',
-    participant_id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
-    activity_id: 'act-quiz-01',
-    points: 850,
+    id: 'pt-008-3',
+    participant_id: 'part-008-tanya',
+    activity_id: 'act-off-stargazing',
+    points: 30,
+    transaction_type: 'offline_challenge',
+    reason: 'Stargazing challenge: Mapped all constellations',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T20:30:00Z'
+  },
+
+  // P014 (Rank #2, Total 165)
+  {
+    id: 'pt-014-1',
+    participant_id: 'part-014-vikram',
+    activity_id: 'act-quiz-trivia',
+    points: 95,
     transaction_type: 'quiz_award',
-    reason: 'Algorithmic Blitz: 85/100 score',
-    created_at: '2026-11-21T12:15:00Z'
+    reason: 'Online quiz: High speed submission',
+    admin_id: 'system',
+    created_at: '2026-11-21T11:30:00Z'
   },
   {
-    id: 'pt-init-04',
-    participant_id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
-    activity_id: 'act-off-02',
-    points: 520,
+    id: 'pt-014-2',
+    participant_id: 'part-014-vikram',
+    activity_id: 'act-off-hardware',
+    points: 40,
     transaction_type: 'offline_challenge',
-    reason: 'UI/UX Sprint: Highest accessibility score',
-    created_at: '2026-11-22T15:00:00Z'
-  },
-  {
-    id: 'pt-init-05',
-    participant_id: 'part-003-rohan',
-    activity_id: 'act-quiz-01',
-    points: 890,
-    transaction_type: 'quiz_award',
-    reason: 'Algorithmic Blitz: 89/100 score',
-    created_at: '2026-11-21T12:20:00Z'
-  },
-  {
-    id: 'pt-init-06',
-    participant_id: 'part-003-rohan',
-    activity_id: 'act-off-03',
-    points: 400,
-    transaction_type: 'offline_challenge',
-    reason: 'Rover Arena: Second fastest track completion',
+    reason: 'Hardware Escape Room: Decoded UART packet',
+    admin_id: 'admin-001',
     created_at: '2026-11-23T11:00:00Z'
   },
   {
-    id: 'pt-init-07',
-    participant_id: 'part-004-aisha',
-    activity_id: 'act-quiz-03',
-    points: 1100,
-    transaction_type: 'quiz_award',
-    reason: 'Smart Contract Audit: Discovered critical reentrancy vector',
-    created_at: '2026-11-21T14:30:00Z'
-  },
-  {
-    id: 'pt-init-08',
-    participant_id: 'part-005-dev',
-    activity_id: 'act-off-03',
-    points: 700,
+    id: 'pt-014-3',
+    participant_id: 'part-014-vikram',
+    activity_id: 'act-off-stargazing',
+    points: 30,
     transaction_type: 'offline_challenge',
-    reason: 'Rover Arena: 1st place in LiDAR navigation obstacle trial',
-    created_at: '2026-11-23T11:45:00Z'
+    reason: 'Stargazing challenge: Celestial identification',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T21:00:00Z'
   },
+
+  // P001 (Rank #3, Total 150: Quiz 100, Treasure Hunt 30, Stargazing 20)
   {
-    id: 'pt-init-09',
-    participant_id: 'part-006-ananya',
-    activity_id: 'act-off-02',
-    points: 580,
-    transaction_type: 'offline_challenge',
-    reason: 'UI/UX Sprint: Outstanding design system & dark mode aesthetics',
-    created_at: '2026-11-22T15:20:00Z'
-  },
-  {
-    id: 'pt-init-10',
-    participant_id: 'part-007-karthik',
-    activity_id: 'act-quiz-02',
-    points: 740,
+    id: 'pt-001-1',
+    participant_id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
+    activity_id: 'act-quiz-trivia',
+    points: 100,
     transaction_type: 'quiz_award',
-    reason: 'AI CTF: Jailbreak challenge solved with prompt chain',
-    created_at: '2026-11-21T16:00:00Z'
+    reason: 'Online quiz: Perfect 100/100 score',
+    admin_id: 'system',
+    created_at: '2026-11-21T12:00:00Z'
+  },
+  {
+    id: 'pt-001-2',
+    participant_id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
+    activity_id: 'act-off-treasure',
+    points: 30,
+    transaction_type: 'offline_challenge',
+    reason: 'Treasure Hunt: Found 6 clue checkpoints',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T14:00:00Z'
+  },
+  {
+    id: 'pt-001-3',
+    participant_id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
+    activity_id: 'act-off-stargazing',
+    points: 20,
+    transaction_type: 'offline_challenge',
+    reason: 'Stargazing challenge: Completed lunar observation task',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T21:30:00Z'
+  },
+
+  // P003 (Quiz: 90, Game: 10, Total: 100)
+  {
+    id: 'pt-003-1',
+    participant_id: 'part-003-rohan',
+    activity_id: 'act-quiz-algo',
+    points: 90,
+    transaction_type: 'quiz_award',
+    reason: 'Online quiz: Algorithmic Duel 90/100',
+    admin_id: 'system',
+    created_at: '2026-11-21T13:00:00Z'
+  },
+  {
+    id: 'pt-003-2',
+    participant_id: 'part-003-rohan',
+    activity_id: 'act-off-treasure',
+    points: 10,
+    transaction_type: 'offline_challenge',
+    reason: 'Treasure Hunt: Stage 1 completion',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T14:30:00Z'
+  },
+
+  // P002 (Quiz: 65, Game: 30, Total: 95)
+  {
+    id: 'pt-002-1',
+    participant_id: 'part-002-sarah',
+    activity_id: 'act-quiz-trivia',
+    points: 65,
+    transaction_type: 'quiz_award',
+    reason: 'Online quiz: Score 65/100',
+    admin_id: 'system',
+    created_at: '2026-11-21T13:30:00Z'
+  },
+  {
+    id: 'pt-002-2',
+    participant_id: 'part-002-sarah',
+    activity_id: 'act-off-treasure',
+    points: 30,
+    transaction_type: 'offline_challenge',
+    reason: 'Treasure Hunt: Solved cryptogram',
+    admin_id: 'admin-001',
+    created_at: '2026-11-22T15:00:00Z'
   }
 ];
 
@@ -337,7 +396,7 @@ class EventStore {
     };
   }
 
-  // --- Participants ---
+  // --- Participants Management ---
 
   getParticipants() {
     try {
@@ -348,9 +407,16 @@ class EventStore {
     }
   }
 
-  getParticipantById(id) {
+  getParticipantById(identifier) {
+    if (!identifier) return null;
     const list = this.getParticipants();
-    return list.find((p) => p.id === id || p.participant_code === id || p.email === id) || null;
+    const query = String(identifier).toLowerCase().trim();
+    return list.find((p) =>
+      (p.id && p.id.toLowerCase() === query) ||
+      (p.username && p.username.toLowerCase() === query) ||
+      (p.participant_code && p.participant_code.toLowerCase() === query) ||
+      (p.email && p.email.toLowerCase() === query)
+    ) || null;
   }
 
   registerParticipant({ fullName, email, organization = '', track = 'General Tech' }) {
@@ -363,15 +429,17 @@ class EventStore {
       return duplicate;
     }
 
-    const nextNum = existing.length + 101;
-    const code = `EVT26-P${String(nextNum).padStart(4, '0')}`;
+    const nextIndex = existing.length + 1;
+    const username = `P${String(nextIndex).padStart(3, '0')}`;
     const newParticipant = {
       id: `part-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      username,
       full_name: fullName.trim(),
       email: normalizedEmail,
-      participant_code: code,
-      organization: organization.trim() || 'VIT Tech Guild',
+      participant_code: username,
+      organization: organization.trim() || 'VIT Technical Guild',
       track: track.trim() || 'General Tech',
+      status: 'Active',
       created_at: new Date().toISOString()
     };
 
@@ -381,7 +449,7 @@ class EventStore {
     return newParticipant;
   }
 
-  // --- Activities ---
+  // --- Activities & Games Management ---
 
   getActivities() {
     try {
@@ -405,7 +473,7 @@ class EventStore {
     const newActivity = {
       id: `act-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       title: title.trim(),
-      type,
+      type, // 'quiz' | 'offline_challenge'
       max_points: Number(max_points),
       description: description.trim(),
       is_active: true,
@@ -428,7 +496,7 @@ class EventStore {
     return updated.find((a) => a.id === id);
   }
 
-  // --- Transactions & Points Engine ---
+  // --- Points & Transaction Engine ---
 
   getTransactions(filter = {}) {
     let list = [];
@@ -456,25 +524,28 @@ class EventStore {
     participant_id,
     activity_id = null,
     points,
-    transaction_type = 'quiz_award',
+    transaction_type = 'offline_challenge',
     reason = '',
-    admin_id = null
+    admin_id = 'admin-001'
   }) {
     if (!participant_id) throw new Error('participant_id is required');
     if (typeof points !== 'number' || isNaN(points)) throw new Error('points must be a valid number');
 
-    // Leaderboard lock check
     if (this.isLeaderboardLocked() && transaction_type !== 'manual_adjustment') {
       throw new Error('Leaderboard is locked. Further score changes require admin unlock.');
     }
 
+    // Resolve participant
+    const target = this.getParticipantById(participant_id);
+    const resolvedId = target ? target.id : participant_id;
+
     const currentList = this.getTransactions();
     const newTx = {
       id: `pt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      participant_id,
+      participant_id: resolvedId,
       activity_id,
       points: Math.round(points),
-      transaction_type,
+      transaction_type, // 'quiz_award' | 'offline_challenge' | 'manual_adjustment'
       reason: reason.trim() || 'Points transaction',
       admin_id,
       created_at: new Date().toISOString()
@@ -486,25 +557,25 @@ class EventStore {
     return newTx;
   }
 
-  // --- Leaderboard & Ranking Computation ---
+  // --- Real-time Leaderboard & Rankings ---
 
   getLeaderboard() {
     const participants = this.getParticipants();
     const transactions = this.getTransactions();
-    const activities = this.getActivities();
-    const activityMap = new Map(activities.map((a) => [a.id, a]));
 
     const participantMap = new Map();
     participants.forEach((p) => {
       participantMap.set(p.id, {
         participant_id: p.id,
+        username: p.username || p.participant_code || 'P000',
         full_name: p.full_name,
         email: p.email,
-        participant_code: p.participant_code,
+        participant_code: p.username || p.participant_code,
         organization: p.organization,
         track: p.track || 'General Tech',
         total_points: 0,
         quiz_points: 0,
+        game_points: 0,
         offline_points: 0,
         manual_adjustments: 0,
         activity_count: 0,
@@ -515,16 +586,17 @@ class EventStore {
     transactions.forEach((tx) => {
       let entry = participantMap.get(tx.participant_id);
       if (!entry) {
-        // Fallback for dynamically created IDs
         entry = {
           participant_id: tx.participant_id,
-          full_name: 'Club Competitor',
+          username: 'P000',
+          full_name: 'Competitor',
           email: '',
-          participant_code: tx.participant_id.substring(0, 10).toUpperCase(),
+          participant_code: 'P000',
           organization: 'VIT Club',
           track: 'General Tech',
           total_points: 0,
           quiz_points: 0,
+          game_points: 0,
           offline_points: 0,
           manual_adjustments: 0,
           activity_count: 0,
@@ -540,6 +612,7 @@ class EventStore {
         entry.quiz_points += tx.points;
       } else if (tx.transaction_type === 'offline_challenge') {
         entry.offline_points += tx.points;
+        entry.game_points += tx.points;
       } else {
         entry.manual_adjustments += tx.points;
       }
@@ -549,7 +622,7 @@ class EventStore {
       }
     });
 
-    // Sort descending by total_points, then by quiz_points
+    // Total Points = Quiz Points + Offline Points
     const sorted = Array.from(participantMap.values()).sort((a, b) => {
       if (b.total_points !== a.total_points) {
         return b.total_points - a.total_points;
@@ -590,6 +663,7 @@ class EventStore {
     const topWinners = leaderboard.slice(0, 3).map((item) => ({
       rank: item.rank,
       participant_id: item.participant_id,
+      username: item.username,
       full_name: item.full_name,
       participant_code: item.participant_code,
       organization: item.organization,
@@ -615,8 +689,6 @@ class EventStore {
     this._notify();
     return { success: true };
   }
-
-  // --- Reset & Mock Data Generation ---
 
   resetToDefaults() {
     safeSetItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(INITIAL_ACTIVITIES));

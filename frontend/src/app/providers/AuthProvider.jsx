@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { eventStore } from '../../shared/services/eventStore.js';
 
 const AuthContext = createContext(null);
 
@@ -55,13 +56,30 @@ export function AuthProvider({ children }) {
   /**
    * Log in an existing Participant by code or email
    */
-  const loginParticipant = ({ codeOrEmail = 'EVT26-P0102' } = {}) => {
+  const loginParticipant = ({ codeOrEmail = 'P001' } = {}) => {
+    const target = eventStore.getParticipantById(codeOrEmail);
+    if (target) {
+      const participantUser = {
+        id: target.id,
+        name: target.full_name,
+        email: target.email,
+        code: target.username || target.participant_code || 'P001',
+        username: target.username || target.participant_code || 'P001',
+        organization: target.organization,
+        track: target.track,
+        role: 'participant'
+      };
+      setAuthSession('participant', participantUser);
+      return participantUser;
+    }
+
     const isEmail = codeOrEmail.includes('@');
     const participantUser = {
       id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
       name: 'Alex Mercer',
       email: isEmail ? codeOrEmail : 'alex.mercer@example.com',
-      code: isEmail ? 'EVT26-P0102' : codeOrEmail.toUpperCase(),
+      code: isEmail ? 'P001' : codeOrEmail.toUpperCase(),
+      username: isEmail ? 'P001' : codeOrEmail.toUpperCase(),
       role: 'participant'
     };
     setAuthSession('participant', participantUser);
@@ -69,17 +87,18 @@ export function AuthProvider({ children }) {
   };
 
   /**
-   * Register a new Participant
+   * Register a new Participant with sequential unique username P00x
    */
-  const registerParticipant = ({ fullName, email, organization = '' }) => {
-    const randomCode = `EVT26-P${Math.floor(1000 + Math.random() * 9000)}`;
-    const randomUuid = `part-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+  const registerParticipant = ({ fullName, email, organization = '', track = 'General Tech' }) => {
+    const created = eventStore.registerParticipant({ fullName, email, organization, track });
     const newParticipant = {
-      id: randomUuid,
-      name: fullName.trim(),
-      email: email.trim(),
-      organization: organization.trim(),
-      code: randomCode,
+      id: created.id,
+      name: created.full_name,
+      email: created.email,
+      organization: created.organization,
+      track: created.track,
+      code: created.username || created.participant_code,
+      username: created.username || created.participant_code,
       role: 'participant'
     };
     setAuthSession('participant', newParticipant);

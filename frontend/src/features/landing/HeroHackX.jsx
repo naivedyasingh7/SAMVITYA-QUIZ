@@ -1,9 +1,10 @@
 import React from 'react';
-import { QrCode, Trophy, ArrowRight, Play } from 'lucide-react';
+import { QrCode, Trophy, ArrowRight, Play, Shield, Users, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-export function HeroHackX({ onOpenRegister, onOpenSimulator }) {
+export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
   return (
-    <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col items-center justify-center px-4 sm:px-8 md:px-14 pt-24 pb-12 select-none">
+    <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col items-center justify-center px-4 sm:px-8 md:px-14 pt-24 pb-16 select-none">
       
       {/* Central H1 Stack (Exact HackX 4.0 Layout & Styling) */}
       <h1
@@ -91,36 +92,103 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator }) {
           <div className="flex items-center justify-between w-full gap-3 sm:gap-4 max-w-4xl mx-auto">
             <div className="h-[1.5px] flex-1 bg-[#F0ABFC]"></div>
             <span className="font-serif italic font-normal normal-case tracking-wide text-lg sm:text-2xl md:text-3xl lg:text-[2.2rem] leading-normal text-white whitespace-nowrap pt-0.5 pb-2 pr-4 inline-block flex-shrink-0">
-              VIT-AP's Premier Quiz & Points Arena!
+              Real-Time Participant Management + Gamification
             </span>
           </div>
         </div>
 
       </h1>
 
-      {/* Action Buttons: REGISTER NOW (HackX style glass pill) + TEST QUIZ SIMULATOR */}
-      <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4 z-20">
-        <button
-          onClick={onOpenRegister}
-          className="inline-block transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <div className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/30 bg-white/10 px-8 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-md text-[13px] sm:text-[15px] md:text-[16px] tracking-[0.2em] font-bold hover:bg-white/20 transition-all text-[#FAF8F5]">
-            <QrCode className="w-4 h-4 text-pink-300" />
-            <span className="font-sans font-semibold uppercase tracking-widest text-[#FAF8F5]">
-              REGISTER NOW
+      {/* Prominent Flow Choice: "Are you an Admin or Participant?" */}
+      <div className="mt-8 max-w-3xl w-full grid grid-cols-1 sm:grid-cols-2 gap-4 text-left z-20">
+        {/* Participant Portal Option */}
+        <div className="glass-surface p-6 rounded-2xl border border-purple-500/30 hover:border-purple-400/60 transition-all shadow-xl space-y-3 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-300 bg-purple-500/15 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
+              PARTICIPANT
             </span>
+            <QrCode className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
           </div>
-        </button>
+          <h3 className="text-lg font-black text-white font-space tracking-tight">
+            Participant Portal
+          </h3>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            Scan event QR or register to claim your unique <strong>P00x</strong> username and individual QR badge. Track your quiz scores, offline game points, and rank live.
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Link
+              to="/register"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold shadow-md shadow-purple-600/30 transition-all flex items-center gap-1.5"
+            >
+              <span>Scan QR / Register</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <button
+              type="button"
+              onClick={onOpenEventQR}
+              className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-purple-200 border border-purple-400/20 text-xs font-semibold transition-colors flex items-center gap-1.5"
+            >
+              <QrCode className="w-3.5 h-3.5 text-pink-300" />
+              <span>Event QR (QR 1)</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Admin Portal Option */}
+        <div className="glass-surface p-6 rounded-2xl border border-indigo-500/30 hover:border-indigo-400/60 transition-all shadow-xl space-y-3 relative overflow-hidden group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-indigo-300 bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 rounded-full">
+              ADMINISTRATOR
+            </span>
+            <Shield className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
+          </div>
+          <h3 className="text-lg font-black text-white font-space tracking-tight">
+            Admin Operations Portal
+          </h3>
+          <p className="text-xs text-slate-300 leading-relaxed">
+            Password-authenticated access. View live participant table (P001, P002...), scan competitor passes with camera, award offline game points, and manage leaderboard.
+          </p>
+          <div className="pt-1">
+            <Link
+              to="/admin/login"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all inline-flex items-center gap-1.5"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Admin Login</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary Fast Action CTAs */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3 z-20">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.05] px-5 py-2.5 backdrop-blur-md text-xs font-bold text-white hover:bg-white/10 transition-all"
+        >
+          <Users className="w-3.5 h-3.5 text-purple-300" />
+          <span>My Participant Dashboard</span>
+        </Link>
 
         <button
           onClick={onOpenSimulator}
-          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 py-3.5 backdrop-blur-md text-xs sm:text-sm font-sans font-bold uppercase tracking-wider text-purple-200 hover:bg-white/10 transition-all active:scale-95"
+          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-5 py-2.5 backdrop-blur-md text-xs font-mono text-purple-200 hover:bg-white/10 transition-all"
         >
-          <Play className="w-3.5 h-3.5 text-pink-400" />
-          <span>Launch Quiz Simulator</span>
+          <Play className="w-3 h-3 text-pink-400" />
+          <span>Launch Quiz Arena</span>
         </button>
+
+        <Link
+          to="/leaderboard"
+          className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-5 py-2.5 backdrop-blur-md text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-all"
+        >
+          <Trophy className="w-3.5 h-3.5 text-amber-400" />
+          <span>Live Leaderboard</span>
+        </Link>
       </div>
 
     </section>
   );
 }
+export default HeroHackX;

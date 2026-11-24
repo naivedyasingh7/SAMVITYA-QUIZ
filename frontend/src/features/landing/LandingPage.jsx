@@ -14,10 +14,12 @@ import { PartnersMarqueeSection } from './PartnersMarqueeSection.jsx';
 import { HackXFooter } from './HackXFooter.jsx';
 import { QRRegistrationModal } from '../../shared/components/QRRegistrationModal.jsx';
 import { QuizSimulatorModal } from '../../shared/components/QuizSimulatorModal.jsx';
+import { EventRegistrationQRModal } from '../../shared/components/EventRegistrationQRModal.jsx';
 
 export default function LandingPage() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
+  const [isEventQROpen, setIsEventQROpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [currentParticipant, setCurrentParticipant] = useState(null);
 
@@ -37,10 +39,11 @@ export default function LandingPage() {
 
       {/* 3. Main Page Flow */}
       <main className="relative z-10 flex-grow">
-        {/* Exact HackX Hero Stack */}
+        {/* Exact HackX Hero Stack with Admin vs Participant choice */}
         <HeroHackX
           onOpenRegister={() => setIsRegisterOpen(true)}
           onOpenSimulator={() => setIsSimulatorOpen(true)}
+          onOpenEventQR={() => setIsEventQROpen(true)}
         />
 
         {/* Exact HackX Stats Archive Slider with Left Rail Nav & Giant Numerals */}
@@ -79,6 +82,11 @@ export default function LandingPage() {
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         onRegistered={(p) => setCurrentParticipant(p)}
+      />
+
+      <EventRegistrationQRModal
+        isOpen={isEventQROpen}
+        onClose={() => setIsEventQROpen(false)}
       />
 
       <QuizSimulatorModal
