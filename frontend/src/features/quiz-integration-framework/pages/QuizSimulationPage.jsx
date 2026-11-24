@@ -93,12 +93,15 @@ export default function QuizSimulationPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-white/[0.08]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 text-[10px] font-mono font-medium uppercase tracking-wider rounded-md bg-white/[0.06] text-slate-300 border border-white/10">
-              Live Native Quiz
+            <span className="px-2.5 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-wider rounded-md bg-purple-600/20 text-purple-200 border border-purple-500/30">
+              Online Quiz Centre
             </span>
             <span className="text-xs text-slate-400 font-mono">Attempt: {attemptId}</span>
           </div>
-          <h1 className="text-xl font-bold text-white mt-1.5 tracking-tight">Participant Quiz Challenge</h1>
+          <h1 className="text-xl font-bold text-white mt-1.5 tracking-tight">Technical Quiz Challenge (10 Questions)</h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            10 foundational technical questions (10 points each). Instant automated grading into the live leaderboard.
+          </p>
         </div>
 
         <Link
@@ -125,9 +128,9 @@ export default function QuizSimulationPage() {
           </span>
         </div>
         <div>
-          <span className="text-slate-400 uppercase font-medium block text-[10px] tracking-wider">Quiz Content</span>
-          <span className="text-slate-200 font-mono tabular-nums block mt-0.5">
-            {questions.length} questions loaded
+          <span className="text-slate-400 uppercase font-medium block text-[10px] tracking-wider">Quiz Progress</span>
+          <span className="text-emerald-300 font-mono tabular-nums block mt-0.5 font-semibold">
+            {Object.keys(selectedAnswers).length} of {questions.length} Answered (100 Pts Max)
           </span>
         </div>
       </div>

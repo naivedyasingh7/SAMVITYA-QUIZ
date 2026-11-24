@@ -53,27 +53,69 @@ export const mockProviderService = {
   },
 
   /**
-   * Generates simulated questions for the interactive test runner.
+   * Generates simulated questions for the interactive test runner (10 Easy Questions).
    */
   getSampleQuiz() {
     return [
       {
         id: 'q1',
-        prompt: 'Which data structure is primarily used to implement LRU cache?',
-        options: ['Queue + Stack', 'Doubly Linked List + Hash Map', 'Binary Search Tree', 'Min Heap'],
-        correctIndex: 1
+        prompt: 'What does HTML stand for in web development?',
+        options: ['HyperText Markup Language', 'High Tech Modern Language', 'Hyper Transfer Markup Logic', 'Home Tool Management Layout'],
+        correctIndex: 0
       },
       {
         id: 'q2',
-        prompt: 'In PostgreSQL, which constraint guarantees idempotency of result submissions?',
-        options: ['CHECK constraint', 'UNIQUE constraint on (activity_id, external_result_id)', 'FOREIGN KEY with CASCADE', 'DEFAULT gen_random_uuid()'],
+        prompt: 'Which of the following data types in Python is immutable (cannot be modified after creation)?',
+        options: ['List', 'Tuple', 'Dictionary', 'Set'],
         correctIndex: 1
       },
       {
         id: 'q3',
-        prompt: 'What pattern allows swapping external quiz platforms without altering the core codebase?',
-        options: ['Observer Pattern', 'Adapter / Registry Pattern', 'Singleton Pattern', 'Decorator Pattern'],
+        prompt: 'Which Git command records staged snapshots into the project commit history?',
+        options: ['git push', 'git stage', 'git commit', 'git pull'],
+        correctIndex: 2
+      },
+      {
+        id: 'q4',
+        prompt: 'What standard HTTP status code signifies that a web request succeeded?',
+        options: ['200 OK', '404 Not Found', '500 Server Error', '403 Forbidden'],
+        correctIndex: 0
+      },
+      {
+        id: 'q5',
+        prompt: 'Which fundamental data structure follows the First-In, First-Out (FIFO) principle?',
+        options: ['Stack', 'Queue', 'Binary Search Tree', 'Graph'],
         correctIndex: 1
+      },
+      {
+        id: 'q6',
+        prompt: 'In JavaScript, which keyword is used to declare a variable whose value can be reassigned?',
+        options: ['const', 'let', 'fixed', 'immutable'],
+        correctIndex: 1
+      },
+      {
+        id: 'q7',
+        prompt: 'Which SQL clause is used to filter records and return only rows that satisfy a condition?',
+        options: ['ORDER BY', 'GROUP BY', 'WHERE', 'HAVING'],
+        correctIndex: 2
+      },
+      {
+        id: 'q8',
+        prompt: 'Which protocol secures web traffic between a browser and a web server using encryption?',
+        options: ['HTTP', 'FTP', 'HTTPS', 'Telnet'],
+        correctIndex: 2
+      },
+      {
+        id: 'q9',
+        prompt: 'What does RAM stand for in computer hardware?',
+        options: ['Random Access Memory', 'Readily Actionable Module', 'Rapid Array Memory', 'Read And Modify'],
+        correctIndex: 0
+      },
+      {
+        id: 'q10',
+        prompt: 'What is the time complexity of accessing an element in an array by its index?',
+        options: ['O(1) - Constant Time', 'O(n) - Linear Time', 'O(log n) - Logarithmic Time', 'O(n^2) - Quadratic Time'],
+        correctIndex: 0
       }
     ];
   }

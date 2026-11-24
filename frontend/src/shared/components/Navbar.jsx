@@ -75,7 +75,7 @@ export function Navbar() {
             }`}
           >
             <PlayCircle className="w-3.5 h-3.5 stroke-[1.75]" />
-            <span>Quiz Arena</span>
+            <span>Online Quiz Centre</span>
           </Link>
 
           <Link

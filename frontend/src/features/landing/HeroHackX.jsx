@@ -171,13 +171,13 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
           <span>My Participant Dashboard</span>
         </Link>
 
-        <button
-          onClick={onOpenSimulator}
-          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-5 py-2.5 backdrop-blur-md text-xs font-mono text-purple-200 hover:bg-white/10 transition-all"
+        <Link
+          to="/quiz-simulation"
+          className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-600/15 px-5 py-2.5 backdrop-blur-md text-xs font-mono text-purple-200 hover:bg-purple-600/25 transition-all"
         >
           <Play className="w-3 h-3 text-pink-400" />
-          <span>Launch Quiz Arena</span>
-        </button>
+          <span>Online Quiz Centre</span>
+        </Link>
 
         <Link
           to="/leaderboard"

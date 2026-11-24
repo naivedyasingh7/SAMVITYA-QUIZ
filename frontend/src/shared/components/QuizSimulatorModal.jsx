@@ -10,17 +10,17 @@ export function QuizSimulatorModal({ isOpen, onClose, activity, participant, onP
 
   if (!isOpen) return null;
 
-  // Sample interactive question
+  // Sample interactive question (Easy technical question)
   const sampleQuestion = {
-    title: activity?.title || 'Cyber Security & Crypto Trivia',
-    prompt: 'In a contract-first architecture, what prevents an external quiz webhook from double-awarding points to a participant on retry?',
+    title: activity?.title || 'Online Quiz Centre • Tech Challenge',
+    prompt: 'What does HTML stand for in web development?',
     options: [
-      { id: 'A', text: 'Relying solely on client localStorage verification', correct: false },
-      { id: 'B', text: 'Database UNIQUE constraint on (activity_id, external_result_id) with idempotent scoring engine', correct: true },
-      { id: 'C', text: 'Resetting the participant total score on every page load', correct: false },
-      { id: 'D', text: 'Storing mutable score integers directly in the participants table', correct: false }
+      { id: 'A', text: 'HyperText Markup Language', correct: true },
+      { id: 'B', text: 'High Tech Modern Language', correct: false },
+      { id: 'C', text: 'Hyper Transfer Markup Logic', correct: false },
+      { id: 'D', text: 'Home Tool Management Layout', correct: false }
     ],
-    maxPoints: activity?.max_points || 1000
+    maxPoints: activity?.max_points || 100
   };
 
   const handleAnswerSubmit = () => {
