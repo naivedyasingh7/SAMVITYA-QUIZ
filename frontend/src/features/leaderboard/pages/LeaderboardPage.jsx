@@ -1,33 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useLeaderboard } from '../hooks/useLeaderboard.js';
 import { leaderboardService } from '../services/leaderboardService.js';
 import { TopThree } from '../components/TopThree.jsx';
 import { LeaderboardTable } from '../components/LeaderboardTable.jsx';
 import { WinnerAnnouncement } from '../components/WinnerAnnouncement.jsx';
-import { eventStore } from '../../../shared/services/eventStore.js';
-import { Trophy, RotateCcw, Sparkles, Radio, Shield } from 'lucide-react';
+import { RotateCcw, Radio, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function LeaderboardPage() {
-  const [rankings, setRankings] = useState([]);
+  const { entries: rankings, isLocked, isLoading: isRefreshing, refresh: loadData } = useLeaderboard();
   const [declaration, setDeclaration] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const loadData = async () => {
-    setIsRefreshing(true);
-    const list = await leaderboardService.getRankings();
-    const decl = await leaderboardService.getWinnerDeclaration();
-    setRankings(list);
-    setDeclaration(decl);
-    setTimeout(() => setIsRefreshing(false), 400);
-  };
 
   useEffect(() => {
-    loadData();
-    const unsub = eventStore.subscribe(() => {
-      loadData();
-    });
-    return unsub;
-  }, []);
+    leaderboardService.getWinnerDeclaration().then(setDeclaration);
+  }, [isLocked, rankings]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
