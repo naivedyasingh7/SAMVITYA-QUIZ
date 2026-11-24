@@ -1,27 +1,43 @@
-import { storage } from '../../shared/utils/storage.js';
+import { eventStore } from '../../../shared/services/eventStore.js';
 
 export const participantService = {
   /**
    * Register new participant or recognize returning participant.
-   * @param {import('../../../../shared/types/participant.types.js').ParticipantRegistrationPayload} payload
    */
-  async register(payload) {
-    // TODO: Connect with Supabase / Edge Function
-    console.log('Registering participant:', payload);
+  async register({ full_name, email, organization = '', track = 'General Tech' }) {
+    const participant = eventStore.registerParticipant({
+      fullName: full_name,
+      email,
+      organization,
+      track
+    });
+    return participant;
+  },
+
+  /**
+   * Retrieve participant profile with their live points and rank.
+   */
+  async getProfile(participantId) {
+    const participant = eventStore.getParticipantById(participantId);
+    if (!participant) return null;
+
+    const leaderboard = eventStore.getLeaderboard();
+    const rankEntry = leaderboard.find((item) => item.participant_id === participant.id);
+
     return {
-      id: 'mock-uuid',
-      participant_code: 'EVT26-P0001',
-      full_name: payload.full_name,
-      email: payload.email
+      ...participant,
+      total_points: rankEntry?.total_points || 0,
+      quiz_points: rankEntry?.quiz_points || 0,
+      offline_points: rankEntry?.offline_points || 0,
+      rank: rankEntry?.rank || '-'
     };
   },
 
   /**
-   * Retrieve current participant profile by ID.
-   * @param {string} participantId
+   * Retrieve personal point ledger history for a participant.
    */
-  async getProfile(participantId) {
-    console.log('Fetching profile for:', participantId);
-    return null;
+  async getMyHistory(participantId) {
+    return eventStore.getTransactions({ participantId });
   }
 };
+export default participantService;

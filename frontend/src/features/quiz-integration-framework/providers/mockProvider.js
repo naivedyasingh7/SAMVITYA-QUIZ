@@ -29,7 +29,7 @@ export class MockQuizProvider extends BaseQuizProvider {
       ts: Date.now().toString()
     });
 
-    const baseUrl = config.baseUrl || window?.location?.origin || '';
+    const baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location?.origin : '') || '';
     return `${baseUrl}/quiz-simulation?${params.toString()}`;
   }
 

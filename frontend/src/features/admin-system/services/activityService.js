@@ -1,9 +1,25 @@
+import { eventStore } from '../../../shared/services/eventStore.js';
+
 export const activityService = {
+  /**
+   * List all registered event activities.
+   */
   async listActivities() {
-    return [];
+    return eventStore.getActivities();
   },
+
+  /**
+   * Create a new club activity.
+   */
   async createActivity(activityData) {
-    console.log('Creating activity:', activityData);
-    return { id: 'act-uuid', ...activityData };
+    return eventStore.createActivity(activityData);
+  },
+
+  /**
+   * Toggle active/inactive state of an activity.
+   */
+  async toggleActivity(id) {
+    return eventStore.toggleActivity(id);
   }
 };
+export default activityService;

@@ -16,7 +16,7 @@ class NativeQuizProvider extends MockQuizProvider {
       act: config.activityId || config.activity_id || 'act-quiz-tech-trivia',
       provider: 'native'
     });
-    const baseUrl = config.baseUrl || window?.location?.origin || '';
+    const baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location?.origin : '') || '';
     return `${baseUrl}/quiz-session?${params.toString()}`;
   }
 
