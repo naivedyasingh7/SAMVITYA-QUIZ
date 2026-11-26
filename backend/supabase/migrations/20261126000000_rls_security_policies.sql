@@ -20,11 +20,12 @@ CREATE OR REPLACE FUNCTION public.is_active_admin()
 RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
+SET search_path = ''
 STABLE
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.admins
-    WHERE id = auth.uid() AND is_active = TRUE
+    WHERE id = (SELECT auth.uid()) AND is_active = TRUE
   );
 $$;
 
