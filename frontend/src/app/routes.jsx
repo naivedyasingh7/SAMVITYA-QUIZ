@@ -19,6 +19,21 @@ import AdminAnalytics from '../features/leaderboard/pages/AdminAnalytics.jsx';
 import TestingPortal from '../features/testing-and-deployment/pages/TestingPortal.jsx';
 import { ProtectedRoute } from '../shared/components/ProtectedRoute.jsx';
 import { Navbar } from '../shared/components/Navbar.jsx';
+import { AdminSidebar } from '../features/admin-system/components/AdminSidebar.jsx';
+import { useAuth } from '../shared/hooks/useAuth.js';
+
+function WithAdminSidebar({ children, alwaysShow = true }) {
+  const { isAdmin } = useAuth();
+  if (!alwaysShow && !isAdmin) {
+    return children;
+  }
+  return (
+    <div className="flex min-h-[calc(100vh-60px)]">
+      <AdminSidebar />
+      <div className="flex-1 min-w-0">{children}</div>
+    </div>
+  );
+}
 
 /**
  * Route shell that conditionally displays the universal top navbar
@@ -103,20 +118,31 @@ export function AppRoutes() {
           path="/admin/quiz-manager"
           element={
             <ProtectedRoute requiredRole="admin">
-              <AdminQuizManagerPage />
+              <WithAdminSidebar>
+                <AdminQuizManagerPage />
+              </WithAdminSidebar>
             </ProtectedRoute>
           }
         />
 
         {/* Phase 3: Quiz integration framework (Ashwin) */}
-        <Route path="/quiz-integrations" element={<QuizIntegrationsPage />} />
+        <Route
+          path="/quiz-integrations"
+          element={
+            <WithAdminSidebar alwaysShow={false}>
+              <QuizIntegrationsPage />
+            </WithAdminSidebar>
+          }
+        />
         <Route path="/quiz-simulation" element={<QuizSimulationPage />} />
         <Route path="/quiz-session" element={<QuizSimulationPage />} />
         <Route
           path="/quiz-manager"
           element={
             <ProtectedRoute requiredRole="admin">
-              <AdminQuizManagerPage />
+              <WithAdminSidebar>
+                <AdminQuizManagerPage />
+              </WithAdminSidebar>
             </ProtectedRoute>
           }
         />
@@ -126,7 +152,9 @@ export function AppRoutes() {
           path="/scoring"
           element={
             <ProtectedRoute requiredRole="admin">
-              <ScoringManagement />
+              <WithAdminSidebar>
+                <ScoringManagement />
+              </WithAdminSidebar>
             </ProtectedRoute>
           }
         />
@@ -137,13 +165,22 @@ export function AppRoutes() {
           path="/leaderboard/analytics"
           element={
             <ProtectedRoute requiredRole="admin">
-              <AdminAnalytics />
+              <WithAdminSidebar>
+                <AdminAnalytics />
+              </WithAdminSidebar>
             </ProtectedRoute>
           }
         />
 
         {/* Phase 6: Testing and deployment (Naivedya) */}
-        <Route path="/testing" element={<TestingPortal />} />
+        <Route
+          path="/testing"
+          element={
+            <WithAdminSidebar alwaysShow={false}>
+              <TestingPortal />
+            </WithAdminSidebar>
+          }
+        />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />

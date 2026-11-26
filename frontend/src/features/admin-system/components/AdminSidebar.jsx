@@ -31,7 +31,7 @@ export function AdminSidebar() {
   ];
 
   return (
-    <aside className="w-64 glass-surface border-r border-white/[0.08] p-4 space-y-5">
+    <aside className="w-64 shrink-0 glass-surface border-r border-white/[0.08] p-4 space-y-5">
       <div>
         <h3 className="font-semibold text-slate-400 uppercase text-[10px] tracking-wider mb-2">Admin Operations</h3>
         <nav className="space-y-1 text-xs">

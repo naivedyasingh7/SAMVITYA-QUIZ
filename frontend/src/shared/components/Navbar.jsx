@@ -79,7 +79,7 @@ export function Navbar() {
           </Link>
 
           <Link
-            to="/admin/quiz-manager"
+            to="/admin/dashboard"
             className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${
               isAdminActive
                 ? 'bg-indigo-600/20 text-indigo-200 border border-indigo-500/30 font-semibold'
@@ -87,7 +87,7 @@ export function Navbar() {
             }`}
           >
             <Shield className="w-3.5 h-3.5 stroke-[1.75]" />
-            <span>Admin Quiz Manager</span>
+            <span>Admin Dashboard</span>
           </Link>
         </div>
 
