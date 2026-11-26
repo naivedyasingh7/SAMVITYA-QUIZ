@@ -4,6 +4,12 @@ import { eventStore } from '../../../shared/services/eventStore.js';
 
 export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoints }) {
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
+
+  const totalPages = Math.max(1, Math.ceil(participants.length / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const paginatedParticipants = participants.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   const handleOpenProfile = (p) => {
     const history = eventStore.getTransactions({ participantId: p.participant_id || p.id });
@@ -25,14 +31,14 @@ export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoi
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04] text-slate-300">
-            {participants.length === 0 ? (
+            {paginatedParticipants.length === 0 ? (
               <tr>
                 <td colSpan="6" className="py-8 text-center text-xs text-slate-500 font-mono">
                   No competitors found.
                 </td>
               </tr>
             ) : (
-              participants.map((p) => {
+              paginatedParticipants.map((p) => {
                 const username = p.username || p.participant_code || 'P000';
                 return (
                   <tr key={p.participant_id || p.id} className="hover:bg-white/[0.02] transition-colors">
@@ -93,6 +99,35 @@ export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoi
             )}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.06] bg-white/[0.01] text-xs font-mono text-slate-400">
+            <span>
+              Showing {(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, participants.length)} of {participants.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={safePage <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                className="px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-40 text-white"
+              >
+                Prev
+              </button>
+              <span className="text-slate-300">
+                Page {safePage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                className="px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-40 text-white"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Profile Detail Modal */}

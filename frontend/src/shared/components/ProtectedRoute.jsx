@@ -9,7 +9,7 @@ import { ShieldAlert, ArrowLeft } from 'lucide-react';
  * Route protection guard that blocks participants from accessing Admin features.
  */
 export function ProtectedRoute({ children, requiredRole = 'admin' }) {
-  const { role, loginAdmin, currentUser } = useAuth();
+  const { role, currentUser } = useAuth();
 
   if (role !== requiredRole) {
     return (
@@ -30,7 +30,7 @@ export function ProtectedRoute({ children, requiredRole = 'admin' }) {
                 'You are currently not signed in.'
               )}
               <br />
-              Participants are restricted from accessing question authoring and administration features.
+              Participants are strictly restricted from accessing question authoring and administration features.
             </p>
           </div>
 
@@ -50,16 +50,7 @@ export function ProtectedRoute({ children, requiredRole = 'admin' }) {
               </Button>
             </Link>
 
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => loginAdmin()}
-              className="w-full py-2 text-xs"
-            >
-              Quick Authorize as Demo Admin
-            </Button>
-
-            <Link to="/quiz-session" className="text-xs text-slate-400 hover:text-slate-200 inline-flex items-center justify-center gap-1 pt-1 transition-colors">
+            <Link to="/quiz-session" className="text-xs text-slate-400 hover:text-slate-200 inline-flex items-center justify-center gap-1 pt-2 transition-colors">
               <ArrowLeft className="w-3 h-3 stroke-[1.75]" />
               <span>Return to Participant Quiz</span>
             </Link>

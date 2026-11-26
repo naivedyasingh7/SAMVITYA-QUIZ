@@ -1,15 +1,44 @@
 import React, { createContext, useContext, useState } from 'react';
 import { eventStore } from '../../shared/services/eventStore.js';
+import { sanitizeEmail, sanitizeText } from '@shared/utils/sanitize.js';
 
 const AuthContext = createContext(null);
 
 const STORAGE_KEY_ROLE = 'epms_role';
 const STORAGE_KEY_USER = 'epms_user';
+const STORAGE_KEY_LOCKOUT = 'epms_admin_lockout';
+
+// Configured via environment variables with safe event fallback
+const EXPECTED_ADMIN_EMAIL = (
+  (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_ADMIN_EMAIL) ||
+  'admin@samvitya.org'
+).toLowerCase();
+
+const EXPECTED_ADMIN_SECRET = (
+  (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_ADMIN_PASSWORD) ||
+  'SamVITya@2026'
+);
+
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_MS = 30 * 1000; // 30 seconds brute-force cooldown
+const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12-hour session expiry
+
+function isSessionValid(user) {
+  if (!user || typeof user !== 'object') return false;
+  if (user.expiresAt && Date.now() > user.expiresAt) return false;
+  return true;
+}
 
 export function AuthProvider({ children }) {
-  // Read persisted authentication state from localStorage
   const [role, setRoleState] = useState(() => {
     try {
+      const savedUser = localStorage.getItem(STORAGE_KEY_USER);
+      const parsed = savedUser ? JSON.parse(savedUser) : null;
+      if (!isSessionValid(parsed)) {
+        localStorage.removeItem(STORAGE_KEY_ROLE);
+        localStorage.removeItem(STORAGE_KEY_USER);
+        return 'guest';
+      }
       return localStorage.getItem(STORAGE_KEY_ROLE) || 'guest';
     } catch {
       return 'guest';
@@ -19,7 +48,8 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUserState] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_USER);
-      return saved ? JSON.parse(saved) : null;
+      const parsed = saved ? JSON.parse(saved) : null;
+      return isSessionValid(parsed) ? parsed : null;
     } catch {
       return null;
     }
@@ -29,9 +59,13 @@ export function AuthProvider({ children }) {
     setRoleState(newRole);
     setCurrentUserState(newUser);
     try {
-      if (newRole && newRole !== 'guest') {
+      if (newRole && newRole !== 'guest' && newUser) {
+        const sessionPayload = {
+          ...newUser,
+          expiresAt: Date.now() + SESSION_TTL_MS
+        };
         localStorage.setItem(STORAGE_KEY_ROLE, newRole);
-        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(newUser));
+        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(sessionPayload));
       } else {
         localStorage.removeItem(STORAGE_KEY_ROLE);
         localStorage.removeItem(STORAGE_KEY_USER);
@@ -40,13 +74,56 @@ export function AuthProvider({ children }) {
   };
 
   /**
-   * Log in as an Administrator
+   * Log in as an Administrator with credential validation & brute-force rate limiting.
    */
-  const loginAdmin = ({ email = 'admin@event.org', password = '' } = {}) => {
+  const loginAdmin = ({ email, password } = {}) => {
+    // Check brute-force lockout
+    try {
+      const rawLock = localStorage.getItem(STORAGE_KEY_LOCKOUT);
+      if (rawLock) {
+        const lockState = JSON.parse(rawLock);
+        if (lockState.lockedUntil && Date.now() < lockState.lockedUntil) {
+          const secs = Math.ceil((lockState.lockedUntil - Date.now()) / 1000);
+          throw new Error(`Too many failed attempts. Please wait ${secs}s before retrying.`);
+        }
+      }
+    } catch (err) {
+      if (err.message.includes('Too many failed attempts')) throw err;
+    }
+
+    const cleanEmail = sanitizeEmail(email || '');
+    const cleanPass = String(password || '');
+
+    if (!cleanEmail || !cleanPass) {
+      throw new Error('Admin email and password are required.');
+    }
+
+    const validEmail = cleanEmail === EXPECTED_ADMIN_EMAIL || cleanEmail === 'admin@event.org';
+    const validPass = cleanPass === EXPECTED_ADMIN_SECRET;
+
+    if (!validEmail || !validPass) {
+      try {
+        const rawLock = localStorage.getItem(STORAGE_KEY_LOCKOUT);
+        const lockState = rawLock ? JSON.parse(rawLock) : { attempts: 0, lockedUntil: null };
+        const nextAttempts = (lockState.attempts || 0) + 1;
+        const lockedUntil = nextAttempts >= MAX_FAILED_ATTEMPTS ? Date.now() + LOCKOUT_MS : null;
+        localStorage.setItem(
+          STORAGE_KEY_LOCKOUT,
+          JSON.stringify({ attempts: lockedUntil ? 0 : nextAttempts, lockedUntil })
+        );
+      } catch (_) {}
+      throw new Error('Invalid administrator credentials.');
+    }
+
+    // Clear lockout on success
+    try {
+      localStorage.removeItem(STORAGE_KEY_LOCKOUT);
+    } catch (_) {}
+
     const adminUser = {
       id: 'admin-001',
       name: 'Event Administrator',
-      email: email || 'admin@event.org',
+      email: cleanEmail,
       role: 'admin'
     };
     setAuthSession('admin', adminUser);
@@ -56,30 +133,25 @@ export function AuthProvider({ children }) {
   /**
    * Log in an existing Participant by code or email
    */
-  const loginParticipant = ({ codeOrEmail = 'P001' } = {}) => {
-    const target = eventStore.getParticipantById(codeOrEmail);
-    if (target) {
-      const participantUser = {
-        id: target.id,
-        name: target.full_name,
-        email: target.email,
-        code: target.username || target.participant_code || 'P001',
-        username: target.username || target.participant_code || 'P001',
-        organization: target.organization,
-        track: target.track,
-        role: 'participant'
-      };
-      setAuthSession('participant', participantUser);
-      return participantUser;
+  const loginParticipant = ({ codeOrEmail = '' } = {}) => {
+    const cleanInput = sanitizeText(codeOrEmail, 128);
+    if (!cleanInput) {
+      throw new Error('Participant username or email is required.');
     }
 
-    const isEmail = codeOrEmail.includes('@');
+    const target = eventStore.getParticipantById(cleanInput);
+    if (!target) {
+      throw new Error(`No registered participant found for "${cleanInput}". Please register first.`);
+    }
+
     const participantUser = {
-      id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',
-      name: 'Alex Mercer',
-      email: isEmail ? codeOrEmail : 'alex.mercer@example.com',
-      code: isEmail ? 'P001' : codeOrEmail.toUpperCase(),
-      username: isEmail ? 'P001' : codeOrEmail.toUpperCase(),
+      id: target.id,
+      name: target.full_name,
+      email: target.email,
+      code: target.username || target.participant_code,
+      username: target.username || target.participant_code,
+      organization: target.organization,
+      track: target.track,
       role: 'participant'
     };
     setAuthSession('participant', participantUser);
@@ -90,7 +162,22 @@ export function AuthProvider({ children }) {
    * Register a new Participant with sequential unique username P00x
    */
   const registerParticipant = ({ fullName, email, organization = '', track = 'General Tech' }) => {
-    const created = eventStore.registerParticipant({ fullName, email, organization, track });
+    const cleanName = sanitizeText(fullName, 128);
+    const cleanEmail = sanitizeEmail(email);
+    const cleanOrg = sanitizeText(organization, 128);
+    const cleanTrack = sanitizeText(track, 64);
+
+    if (!cleanName || !cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      throw new Error('A valid full name and email address are required.');
+    }
+
+    const created = eventStore.registerParticipant({
+      fullName: cleanName,
+      email: cleanEmail,
+      organization: cleanOrg,
+      track: cleanTrack
+    });
+
     const newParticipant = {
       id: created.id,
       name: created.full_name,
@@ -116,12 +203,10 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         currentUser,
-        setCurrentUser: (u) => setAuthSession(role, u),
         role,
-        setRole: (r) => setAuthSession(r, currentUser),
-        isAdmin: role === 'admin',
-        isParticipant: role === 'participant',
-        isAuthenticated: Boolean(currentUser && role !== 'guest'),
+        isAdmin: role === 'admin' && isSessionValid(currentUser),
+        isParticipant: role === 'participant' && isSessionValid(currentUser),
+        isAuthenticated: Boolean(currentUser && role !== 'guest' && isSessionValid(currentUser)),
         loginAdmin,
         loginParticipant,
         registerParticipant,

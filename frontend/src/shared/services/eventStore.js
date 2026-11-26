@@ -11,6 +11,13 @@
  * - Reactive broadcast channel for live real-time sync across portals
  */
 
+import {
+  sanitizeText,
+  sanitizeEmail,
+  escapeCsvCell,
+  validatePointsBounds
+} from '@shared/utils/sanitize.js';
+
 const STORAGE_KEY_PARTICIPANTS = 'epms_participants_v3';
 const STORAGE_KEY_ACTIVITIES = 'epms_activities_v3';
 const STORAGE_KEY_TRANSACTIONS = 'epms_transactions_v3';
@@ -350,7 +357,46 @@ function safeRemoveItem(key) {
 class EventStore {
   constructor() {
     this._listeners = new Set();
+    this._cache = {
+      participants: null,
+      activities: null,
+      transactions: null
+    };
+    this._participantIndex = new Map();
     this._initStorage();
+    this._rebuildParticipantIndex();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (
+          e.key === STORAGE_KEY_PARTICIPANTS ||
+          e.key === STORAGE_KEY_ACTIVITIES ||
+          e.key === STORAGE_KEY_TRANSACTIONS ||
+          e.key === STORAGE_KEY_DECLARATION
+        ) {
+          this._invalidateCache();
+          this._notify();
+        }
+      });
+    }
+  }
+
+  _invalidateCache() {
+    this._cache.participants = null;
+    this._cache.activities = null;
+    this._cache.transactions = null;
+    this._rebuildParticipantIndex();
+  }
+
+  _rebuildParticipantIndex() {
+    this._participantIndex.clear();
+    const list = this.getParticipants();
+    for (const p of list) {
+      if (p.id) this._participantIndex.set(String(p.id).toLowerCase(), p);
+      if (p.username) this._participantIndex.set(String(p.username).toLowerCase(), p);
+      if (p.participant_code) this._participantIndex.set(String(p.participant_code).toLowerCase(), p);
+      if (p.email) this._participantIndex.set(String(p.email).toLowerCase(), p);
+    }
   }
 
   _initStorage() {
@@ -399,64 +445,139 @@ class EventStore {
   // --- Participants Management ---
 
   getParticipants() {
+    if (this._cache.participants) {
+      return this._cache.participants;
+    }
     try {
       const data = safeGetItem(STORAGE_KEY_PARTICIPANTS);
-      return data ? JSON.parse(data) : INITIAL_PARTICIPANTS;
+      const parsed = data ? JSON.parse(data) : INITIAL_PARTICIPANTS;
+      this._cache.participants = Array.isArray(parsed) ? parsed : INITIAL_PARTICIPANTS;
+      return this._cache.participants;
     } catch {
-      return INITIAL_PARTICIPANTS;
+      this._cache.participants = INITIAL_PARTICIPANTS;
+      return this._cache.participants;
     }
   }
 
   getParticipantById(identifier) {
     if (!identifier) return null;
-    const list = this.getParticipants();
     const query = String(identifier).toLowerCase().trim();
-    return list.find((p) =>
-      (p.id && p.id.toLowerCase() === query) ||
-      (p.username && p.username.toLowerCase() === query) ||
-      (p.participant_code && p.participant_code.toLowerCase() === query) ||
-      (p.email && p.email.toLowerCase() === query)
-    ) || null;
+    if (this._participantIndex.size === 0) {
+      this._rebuildParticipantIndex();
+    }
+    return this._participantIndex.get(query) || null;
+  }
+
+  _getNextParticipantNumber(existing) {
+    let maxNum = existing.length;
+    for (const p of existing) {
+      const code = p.username || p.participant_code || '';
+      const match = /^P(\d+)$/i.exec(code);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) maxNum = num;
+      }
+    }
+    return maxNum + 1;
   }
 
   registerParticipant({ fullName, email, organization = '', track = 'General Tech' }) {
-    if (!fullName || !email) throw new Error('Full name and email are required');
+    const cleanName = sanitizeText(fullName, 128);
+    const cleanEmail = sanitizeEmail(email);
+    const cleanOrg = sanitizeText(organization, 128);
+    const cleanTrack = sanitizeText(track, 64);
+
+    if (!cleanName || !cleanEmail) throw new Error('Full name and email are required');
     const existing = this.getParticipants();
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const duplicate = existing.find((p) => p.email.toLowerCase() === normalizedEmail);
+    const duplicate = this._participantIndex.get(cleanEmail);
     if (duplicate) {
       return duplicate;
     }
 
-    const nextIndex = existing.length + 1;
+    let nextIndex = this._getNextParticipantNumber(existing);
+    while (this._participantIndex.has(`p${String(nextIndex).padStart(3, '0')}`)) {
+      nextIndex++;
+    }
     const username = `P${String(nextIndex).padStart(3, '0')}`;
     const newParticipant = {
       id: `part-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       username,
-      full_name: fullName.trim(),
-      email: normalizedEmail,
+      full_name: cleanName,
+      email: cleanEmail,
       participant_code: username,
-      organization: organization.trim() || 'VIT Technical Guild',
-      track: track.trim() || 'General Tech',
+      organization: cleanOrg || 'VIT Technical Guild',
+      track: cleanTrack || 'General Tech',
       status: 'Active',
       created_at: new Date().toISOString()
     };
 
     const updated = [newParticipant, ...existing];
+    this._cache.participants = updated;
+    this._participantIndex.set(newParticipant.id.toLowerCase(), newParticipant);
+    this._participantIndex.set(username.toLowerCase(), newParticipant);
+    this._participantIndex.set(cleanEmail, newParticipant);
+
     safeSetItem(STORAGE_KEY_PARTICIPANTS, JSON.stringify(updated));
     this._notify();
     return newParticipant;
   }
 
+  registerParticipantsBatch(items = []) {
+    const existing = this.getParticipants();
+    const created = [];
+    let nextIdx = this._getNextParticipantNumber(existing);
+
+    for (const item of items) {
+      const cleanName = sanitizeText(item.fullName || item.full_name, 128);
+      const cleanEmail = sanitizeEmail(item.email);
+      if (!cleanName || !cleanEmail) continue;
+      if (this._participantIndex.has(cleanEmail)) continue;
+
+      while (this._participantIndex.has(`p${String(nextIdx).padStart(3, '0')}`)) {
+        nextIdx++;
+      }
+      const username = `P${String(nextIdx++).padStart(3, '0')}`;
+      const p = {
+        id: `part-${Date.now()}-${nextIdx}-${Math.random().toString(36).substring(2, 6)}`,
+        username,
+        full_name: cleanName,
+        email: cleanEmail,
+        participant_code: username,
+        organization: sanitizeText(item.organization, 128) || 'VIT Technical Guild',
+        track: sanitizeText(item.track, 64) || 'General Tech',
+        status: 'Active',
+        created_at: new Date().toISOString()
+      };
+      created.push(p);
+      this._participantIndex.set(p.id.toLowerCase(), p);
+      this._participantIndex.set(username.toLowerCase(), p);
+      this._participantIndex.set(cleanEmail, p);
+    }
+
+    if (created.length > 0) {
+      const updated = [...[...created].reverse(), ...existing];
+      this._cache.participants = updated;
+      safeSetItem(STORAGE_KEY_PARTICIPANTS, JSON.stringify(updated));
+      this._notify();
+    }
+    return created;
+  }
+
   // --- Activities & Games Management ---
 
   getActivities() {
+    if (this._cache.activities) {
+      return this._cache.activities;
+    }
     try {
       const data = safeGetItem(STORAGE_KEY_ACTIVITIES);
-      return data ? JSON.parse(data) : INITIAL_ACTIVITIES;
+      const parsed = data ? JSON.parse(data) : INITIAL_ACTIVITIES;
+      this._cache.activities = Array.isArray(parsed) ? parsed : INITIAL_ACTIVITIES;
+      return this._cache.activities;
     } catch {
-      return INITIAL_ACTIVITIES;
+      this._cache.activities = INITIAL_ACTIVITIES;
+      return this._cache.activities;
     }
   }
 
@@ -465,17 +586,20 @@ class EventStore {
   }
 
   createActivity({ title, type, max_points, description = '', starts_at, ends_at }) {
-    if (!title || !type || !max_points) {
+    const cleanTitle = sanitizeText(title, 128);
+    const cleanDesc = sanitizeText(description, 512);
+    if (!cleanTitle || !type || !max_points) {
       throw new Error('Title, type, and max_points are required');
     }
 
+    const boundedMax = validatePointsBounds(max_points, 1, 5000);
     const list = this.getActivities();
     const newActivity = {
       id: `act-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      title: title.trim(),
+      title: cleanTitle,
       type, // 'quiz' | 'offline_challenge'
-      max_points: Number(max_points),
-      description: description.trim(),
+      max_points: boundedMax,
+      description: cleanDesc,
       is_active: true,
       starts_at: starts_at || new Date().toISOString(),
       ends_at: ends_at || new Date(Date.now() + 86400000 * 3).toISOString(),
@@ -483,6 +607,7 @@ class EventStore {
     };
 
     const updated = [newActivity, ...list];
+    this._cache.activities = updated;
     safeSetItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(updated));
     this._notify();
     return newActivity;
@@ -491,6 +616,7 @@ class EventStore {
   toggleActivity(id) {
     const list = this.getActivities();
     const updated = list.map((act) => (act.id === id ? { ...act, is_active: !act.is_active } : act));
+    this._cache.activities = updated;
     safeSetItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(updated));
     this._notify();
     return updated.find((a) => a.id === id);
@@ -498,14 +624,23 @@ class EventStore {
 
   // --- Points & Transaction Engine ---
 
-  getTransactions(filter = {}) {
-    let list = [];
+  _getAllTransactionsRaw() {
+    if (this._cache.transactions) {
+      return this._cache.transactions;
+    }
     try {
       const data = safeGetItem(STORAGE_KEY_TRANSACTIONS);
-      list = data ? JSON.parse(data) : INITIAL_TRANSACTIONS;
+      const parsed = data ? JSON.parse(data) : INITIAL_TRANSACTIONS;
+      this._cache.transactions = Array.isArray(parsed) ? parsed : INITIAL_TRANSACTIONS;
+      return this._cache.transactions;
     } catch {
-      list = INITIAL_TRANSACTIONS;
+      this._cache.transactions = INITIAL_TRANSACTIONS;
+      return this._cache.transactions;
     }
+  }
+
+  getTransactions(filter = {}) {
+    let list = this._getAllTransactionsRaw();
 
     if (filter.participantId) {
       list = list.filter((t) => t.participant_id === filter.participantId);
@@ -517,7 +652,7 @@ class EventStore {
       list = list.filter((t) => t.transaction_type === filter.type);
     }
 
-    return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return [...list].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
   recordTransaction({
@@ -529,32 +664,70 @@ class EventStore {
     admin_id = 'admin-001'
   }) {
     if (!participant_id) throw new Error('participant_id is required');
-    if (typeof points !== 'number' || isNaN(points)) throw new Error('points must be a valid number');
+    const boundedPoints = validatePointsBounds(points, -500, 1000);
 
     if (this.isLeaderboardLocked() && transaction_type !== 'manual_adjustment') {
       throw new Error('Leaderboard is locked. Further score changes require admin unlock.');
     }
 
-    // Resolve participant
+    // Resolve participant in O(1)
     const target = this.getParticipantById(participant_id);
     const resolvedId = target ? target.id : participant_id;
 
-    const currentList = this.getTransactions();
+    const currentList = this._getAllTransactionsRaw();
     const newTx = {
       id: `pt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       participant_id: resolvedId,
       activity_id,
-      points: Math.round(points),
+      points: boundedPoints,
       transaction_type, // 'quiz_award' | 'offline_challenge' | 'manual_adjustment'
-      reason: reason.trim() || 'Points transaction',
-      admin_id,
+      reason: sanitizeText(reason, 256) || 'Points transaction',
+      admin_id: sanitizeText(admin_id, 64) || 'admin-001',
       created_at: new Date().toISOString()
     };
 
     const updated = [newTx, ...currentList];
+    this._cache.transactions = updated;
     safeSetItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(updated));
     this._notify();
     return newTx;
+  }
+
+  recordTransactionsBatch(items = []) {
+    if (this.isLeaderboardLocked()) {
+      throw new Error('Leaderboard is locked. Further score changes require admin unlock.');
+    }
+
+    const currentList = this._getAllTransactionsRaw();
+    const created = [];
+    const now = Date.now();
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!item || !item.participant_id) continue;
+      const boundedPoints = validatePointsBounds(item.points, -500, 1000);
+      const target = this.getParticipantById(item.participant_id);
+      const resolvedId = target ? target.id : item.participant_id;
+
+      created.push({
+        id: `pt-${now}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+        participant_id: resolvedId,
+        activity_id: item.activity_id || null,
+        points: boundedPoints,
+        transaction_type: item.transaction_type || 'offline_challenge',
+        reason: sanitizeText(item.reason, 256) || 'Batch points transaction',
+        admin_id: sanitizeText(item.admin_id, 64) || 'admin-001',
+        created_at: new Date(now + i).toISOString()
+      });
+    }
+
+    if (created.length > 0) {
+      const updated = [...created.reverse(), ...currentList];
+      this._cache.transactions = updated;
+      safeSetItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(updated));
+      this._notify();
+    }
+    return created;
   }
 
   // --- Real-time Leaderboard & Rankings ---
@@ -690,11 +863,89 @@ class EventStore {
     return { success: true };
   }
 
+  // --- Fallback Backup, Restore & Storage Health ---
+
+  exportBackupSnapshot() {
+    return {
+      version: '3.0',
+      exportedAt: new Date().toISOString(),
+      participants: this.getParticipants(),
+      activities: this.getActivities(),
+      transactions: this._getAllTransactionsRaw(),
+      declaration: this.getWinnerDeclaration()
+    };
+  }
+
+  restoreBackupSnapshot(snapshot) {
+    if (!snapshot || typeof snapshot !== 'object') {
+      throw new Error('Invalid backup snapshot format.');
+    }
+    if (!Array.isArray(snapshot.participants) || !Array.isArray(snapshot.transactions)) {
+      throw new Error('Backup snapshot must contain participants and transactions arrays.');
+    }
+
+    safeSetItem(STORAGE_KEY_PARTICIPANTS, JSON.stringify(snapshot.participants));
+    safeSetItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(snapshot.transactions));
+    if (Array.isArray(snapshot.activities)) {
+      safeSetItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(snapshot.activities));
+    }
+    if (snapshot.declaration) {
+      safeSetItem(STORAGE_KEY_DECLARATION, JSON.stringify(snapshot.declaration));
+    } else {
+      safeRemoveItem(STORAGE_KEY_DECLARATION);
+    }
+
+    this._invalidateCache();
+    this._notify();
+    return {
+      restoredParticipants: snapshot.participants.length,
+      restoredTransactions: snapshot.transactions.length
+    };
+  }
+
+  exportLeaderboardCsv() {
+    const lb = this.getLeaderboard();
+    const headers = ['Rank', 'Username', 'Full Name', 'Email', 'Organization', 'Quiz Points', 'Game Points', 'Total Points'];
+    const lines = [headers.map(escapeCsvCell).join(',')];
+
+    for (const row of lb) {
+      lines.push([
+        row.rank,
+        row.username,
+        row.full_name,
+        row.email,
+        row.organization,
+        row.quiz_points,
+        row.game_points,
+        row.total_points
+      ].map(escapeCsvCell).join(','));
+    }
+    return lines.join('\n');
+  }
+
+  getStorageHealth() {
+    const pJson = JSON.stringify(this.getParticipants());
+    const tJson = JSON.stringify(this._getAllTransactionsRaw());
+    const aJson = JSON.stringify(this.getActivities());
+    const estimatedBytes = pJson.length + tJson.length + aJson.length;
+    const quotaBytes = 5 * 1024 * 1024; // ~5MB typical browser localStorage limit
+    const quotaPercent = Math.min(100, Math.round((estimatedBytes / quotaBytes) * 1000) / 10);
+
+    return {
+      participantCount: this.getParticipants().length,
+      transactionCount: this._getAllTransactionsRaw().length,
+      estimatedKB: Math.round(estimatedBytes / 1024),
+      quotaPercent,
+      status: quotaPercent > 80 ? 'WARNING' : 'HEALTHY'
+    };
+  }
+
   resetToDefaults() {
     safeSetItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(INITIAL_ACTIVITIES));
     safeSetItem(STORAGE_KEY_PARTICIPANTS, JSON.stringify(INITIAL_PARTICIPANTS));
     safeSetItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(INITIAL_TRANSACTIONS));
     safeRemoveItem(STORAGE_KEY_DECLARATION);
+    this._invalidateCache();
     this._notify();
   }
 }

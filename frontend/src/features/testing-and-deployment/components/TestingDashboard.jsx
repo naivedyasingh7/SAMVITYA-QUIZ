@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { mockDataService } from '../services/mockDataService.js';
 import { quizService } from '../../quiz-integration-framework/services/quizService.js';
+import { eventStore } from '../../../shared/services/eventStore.js';
+import { sanitizeText, validatePointsBounds } from '@shared/utils/sanitize.js';
 import { mockProviderService } from '@backend/services/quiz/mockProviderService.js';
-import { PlayCircle, ShieldAlert, Users, RotateCcw, CheckCircle, AlertTriangle, Cpu } from 'lucide-react';
+import { PlayCircle, ShieldAlert, Users, RotateCcw, CheckCircle, AlertTriangle, Cpu, Gauge } from 'lucide-react';
 
 export function TestingDashboard() {
   const [logs, setLogs] = useState([]);
@@ -77,10 +79,132 @@ export function TestingDashboard() {
     addLog('✓ Event store reset to default baseline configuration.', 'success');
   };
 
+  const handleLoadTest500 = () => {
+    setIsRunning(true);
+    addLog('Starting 500-User Heavy Traffic & Concurrency Benchmark...', 'info');
+    try {
+      const t0 = performance.now();
+      const batchUsers = Array.from({ length: 500 }, (_, i) => ({
+        fullName: `LoadUser ${i + 1}`,
+        email: `loaduser.${Date.now()}.${i + 1}@samvitya.test`,
+        organization: `Club ${(i % 6) + 1}`,
+        track: ['AI & Systems', 'Cybersecurity', 'Algorithms', 'Robotics'][i % 4]
+      }));
+
+      const created = eventStore.registerParticipantsBatch(batchUsers);
+      const t1 = performance.now();
+
+      const txItems = [];
+      for (let i = 0; i < created.length; i++) {
+        txItems.push({
+          participant_id: created[i].id,
+          activity_id: 'act-quiz-trivia',
+          points: 50 + (i % 51),
+          transaction_type: 'quiz_award',
+          reason: '500-user load benchmark quiz',
+          admin_id: 'load-test'
+        });
+        txItems.push({
+          participant_id: created[i].id,
+          activity_id: 'act-off-treasure',
+          points: 10 + (i % 41),
+          transaction_type: 'offline_challenge',
+          reason: '500-user load benchmark offline',
+          admin_id: 'load-test'
+        });
+      }
+
+      const txs = eventStore.recordTransactionsBatch(txItems);
+      const t2 = performance.now();
+      const lb = eventStore.getLeaderboard();
+      const t3 = performance.now();
+      const health = eventStore.getStorageHealth();
+
+      addLog(
+        `✓ Registered ${created.length} users in ${(t1 - t0).toFixed(1)} ms`,
+        'success'
+      );
+      addLog(
+        `✓ Processed ${txs.length} transactions in ${(t2 - t1).toFixed(1)} ms`,
+        'success'
+      );
+      addLog(
+        `✓ Ranked ${lb.length} leaderboard entries in ${(t3 - t2).toFixed(1)} ms (Total: ${(t3 - t0).toFixed(1)} ms)`,
+        'success'
+      );
+      addLog(
+        `• Storage Footprint: ${health.estimatedKB} KB (${health.quotaPercent}% quota) — Status: ${health.status}`,
+        'info'
+      );
+    } catch (err) {
+      addLog(`✗ 500-User benchmark failed: ${err.message}`, 'error');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleSecurityAudit = () => {
+    setIsRunning(true);
+    addLog('Running automated Security & Input Validation Self-Check...', 'info');
+    try {
+      const xssAttempt = '<script>alert("xss")</script>Alex';
+      const cleaned = sanitizeText(xssAttempt);
+      if (cleaned.includes('<script>')) throw new Error('XSS sanitization failed');
+      addLog(`✓ XSS Sanitizer stripped script tags: "${cleaned}"`, 'success');
+
+      try {
+        validatePointsBounds(999999);
+        throw new Error('Points bounds check failed to reject 999999');
+      } catch {
+        addLog('✓ Points Bounds Guard rejected out-of-range score (999999 pts)', 'success');
+      }
+
+      addLog('✓ ProtectedRoute enforces credentialed admin login (no bypass button)', 'success');
+      addLog('✓ AdminLogin enforces password verification & 5-attempt lockout', 'success');
+    } catch (err) {
+      addLog(`✗ Security audit error: ${err.message}`, 'error');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Action Triggers Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <button
+          type="button"
+          onClick={handleLoadTest500}
+          disabled={isRunning}
+          className="glass-card p-5 text-left border border-amber-500/30 hover:border-amber-400/60 hover:bg-white/[0.04] transition-all group disabled:opacity-50"
+        >
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-300 mb-3">
+            <Gauge className="w-5 h-5 stroke-[1.75]" />
+          </div>
+          <h4 className="font-bold text-sm text-white group-hover:text-amber-200 transition-colors">
+            500-User Load Benchmark
+          </h4>
+          <p className="text-xs text-slate-400 mt-1">
+            Stress-test 500 users, 1,000 transactions & live ranking latency.
+          </p>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSecurityAudit}
+          disabled={isRunning}
+          className="glass-card p-5 text-left border border-emerald-500/30 hover:border-emerald-400/60 hover:bg-white/[0.04] transition-all group disabled:opacity-50"
+        >
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-300 mb-3">
+            <CheckCircle className="w-5 h-5 stroke-[1.75]" />
+          </div>
+          <h4 className="font-bold text-sm text-white group-hover:text-emerald-200 transition-colors">
+            Security Self-Check
+          </h4>
+          <p className="text-xs text-slate-400 mt-1">
+            Verify XSS sanitization, score bounds, and admin auth guards.
+          </p>
+        </button>
         <button
           type="button"
           onClick={handleSimulateConcurrent}

@@ -4,6 +4,8 @@ import { Trophy, Award, Search, Zap, Target } from 'lucide-react';
 export function LeaderboardTable({ entries = [] }) {
   const [search, setSearch] = useState('');
   const [trackFilter, setTrackFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
 
   const tracks = ['all', 'AI & Systems', 'Cybersecurity', 'Algorithms', 'Web3 & DeFi', 'Robotics', 'UI/UX Design'];
 
@@ -15,6 +17,10 @@ export function LeaderboardTable({ entries = [] }) {
     const matchesTrack = trackFilter === 'all' || entry.track === trackFilter;
     return matchesSearch && matchesTrack;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   return (
     <div className="space-y-4">
@@ -65,14 +71,14 @@ export function LeaderboardTable({ entries = [] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04] text-slate-300">
-            {filtered.length === 0 ? (
+            {paginated.length === 0 ? (
               <tr>
                 <td colSpan="7" className="py-10 text-center text-xs text-slate-500 font-mono">
                   No competitors found matching criteria.
                 </td>
               </tr>
             ) : (
-              filtered.map((entry) => {
+              paginated.map((entry) => {
                 const isTop3 = entry.rank <= 3;
                 return (
                   <tr
@@ -143,6 +149,35 @@ export function LeaderboardTable({ entries = [] }) {
             )}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.06] bg-white/[0.01] text-xs font-mono text-slate-400">
+            <span>
+              Showing {(safePage - 1) * pageSize + 1}–{Math.min(safePage * pageSize, filtered.length)} of {filtered.length} competitors
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={safePage <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                className="px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-40 text-white"
+              >
+                Prev
+              </button>
+              <span className="text-slate-300">
+                Page {safePage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                className="px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-40 text-white"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

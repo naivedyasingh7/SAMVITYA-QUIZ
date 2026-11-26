@@ -3,11 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../shared/hooks/useAuth.js';
 import { Button } from '../../../shared/components/Button.jsx';
 import { Card } from '../../../shared/components/Card.jsx';
-import { Lock, AlertCircle } from 'lucide-react';
+import { Lock, AlertCircle, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('admin@event.org');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,25 +19,20 @@ export default function AdminLogin() {
     setError(null);
     setIsLoading(true);
 
-    if (!email.trim()) {
-      setError('Admin email or username is required');
+    if (!email.trim() || !password) {
+      setError('Admin email and password are required');
       setIsLoading(false);
       return;
     }
 
     try {
       loginAdmin({ email: email.trim(), password });
-      navigate('/admin/quiz-manager');
+      navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(err.message || 'Invalid credentials');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoAdmin = () => {
-    loginAdmin({ email: 'admin@event.org', password: 'password' });
-    navigate('/admin/quiz-manager');
   };
 
   return (
@@ -45,11 +40,11 @@ export default function AdminLogin() {
       <Card className="p-8 space-y-6">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-1">
-            <Lock className="w-8 h-8 text-slate-300 stroke-[1.5]" />
+            <Lock className="w-8 h-8 text-indigo-400 stroke-[1.5]" />
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">Staff & Administrator Login</h2>
           <p className="text-xs text-slate-400">
-            Secure portal to author questions, curate quizzes, and manage points.
+            Protected portal. Enter your authorized event administrator credentials.
           </p>
         </div>
 
@@ -60,17 +55,17 @@ export default function AdminLogin() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4 text-xs">
+        <form onSubmit={handleLogin} className="space-y-4 text-xs" autoComplete="off">
           <div>
             <label className="block text-slate-300 font-medium uppercase tracking-wider mb-1.5 text-[11px]">
-              Admin Email or Username
+              Admin Email
             </label>
             <input
-              type="text"
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@event.org"
+              placeholder="admin@samvitya.org"
               className="glass-input w-full px-3 py-2 text-xs font-mono"
             />
           </div>
@@ -84,7 +79,7 @@ export default function AdminLogin() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               className="glass-input w-full px-3 py-2 text-xs"
             />
           </div>
@@ -99,14 +94,10 @@ export default function AdminLogin() {
         </form>
 
         <div className="pt-4 border-t border-white/[0.08] space-y-3">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleDemoAdmin}
-            className="w-full py-2 text-xs"
-          >
-            One-Click Demo Admin Login
-          </Button>
+          <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center gap-2 text-[11px] text-slate-400">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Brute-force rate limiting active (5 attempts max before cooldown).</span>
+          </div>
 
           <div className="text-center text-xs text-slate-400 pt-1">
             Are you a participant?{' '}
