@@ -35,7 +35,7 @@ event-points-management-system/
 │           ├── admin-system/           # [Suvradeep] Admin dashboard & offline points
 │           ├── quiz-integration-framework/ # [Ashwin] Provider adapters & attempts
 │           ├── automatic-scoring/      # [Divya] Point calculation & audit engine
-│           ├── leaderboard/            # [Priyanshu] Real-time rankings & winners
+│           ├── leaderboard/            # [Priyansh] Real-time rankings & winners
 │           └── testing-and-deployment/ # [Naivedya] Integration QA & CI/CD
 │
 ├── backend/
