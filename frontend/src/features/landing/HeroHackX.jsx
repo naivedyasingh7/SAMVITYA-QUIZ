@@ -107,30 +107,22 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
             <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-300 bg-purple-500/15 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
               PARTICIPANT
             </span>
-            <QrCode className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
+            <Users className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
           </div>
           <h3 className="text-lg font-black text-white font-space tracking-tight">
             Participant Portal
           </h3>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Scan event QR or register to claim your unique <strong>P00x</strong> username and individual QR badge. Track your quiz scores, offline game points, and rank live.
+            Open the site to receive your unique <strong>P00x</strong> ID, play the 10-question Online Quiz, and track your offline game check-offs and leaderboard rank.
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
             <Link
               to="/register"
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold shadow-md shadow-purple-600/30 transition-all flex items-center gap-1.5"
             >
-              <span>Scan QR / Register</span>
+              <span>Enter as Participant</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-            <button
-              type="button"
-              onClick={onOpenEventQR}
-              className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-purple-200 border border-purple-400/20 text-xs font-semibold transition-colors flex items-center gap-1.5"
-            >
-              <QrCode className="w-3.5 h-3.5 text-pink-300" />
-              <span>Event QR (QR 1)</span>
-            </button>
           </div>
         </div>
 
@@ -146,7 +138,7 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
             Admin Operations Portal
           </h3>
           <p className="text-xs text-slate-300 leading-relaxed">
-            Password-authenticated access. View live participant table (P001, P002...), scan competitor passes with camera, award offline game points, and manage leaderboard.
+            Admin login required. View all participant IDs with their points, tick off offline games they play, and award offline game points live.
           </p>
           <div className="pt-1">
             <Link

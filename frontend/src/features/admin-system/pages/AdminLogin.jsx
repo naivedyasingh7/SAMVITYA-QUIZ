@@ -6,7 +6,7 @@ import { Card } from '../../../shared/components/Card.jsx';
 import { Lock, AlertCircle, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,15 +19,15 @@ export default function AdminLogin() {
     setError(null);
     setIsLoading(true);
 
-    if (!email.trim() || !password) {
-      setError('Admin email and password are required');
+    if (!username.trim() || !password) {
+      setError('Admin username and password are required');
       setIsLoading(false);
       return;
     }
 
     try {
-      loginAdmin({ email: email.trim(), password });
-      navigate('/admin/dashboard');
+      loginAdmin({ username: username.trim(), password });
+      navigate('/admin/participants');
     } catch (err) {
       setError(err.message || 'Invalid credentials');
     } finally {
@@ -44,7 +44,7 @@ export default function AdminLogin() {
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">Staff & Administrator Login</h2>
           <p className="text-xs text-slate-400">
-            Protected portal. Enter your authorized event administrator credentials.
+            Protected portal. Enter your authorized admin username and password.
           </p>
         </div>
 
@@ -58,14 +58,14 @@ export default function AdminLogin() {
         <form onSubmit={handleLogin} className="space-y-4 text-xs" autoComplete="off">
           <div>
             <label className="block text-slate-300 font-medium uppercase tracking-wider mb-1.5 text-[11px]">
-              Admin Email
+              Admin Username
             </label>
             <input
-              type="email"
+              type="text"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@samvitya.org"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="ADMIN2026"
               className="glass-input w-full px-3 py-2 text-xs font-mono"
             />
           </div>
@@ -80,7 +80,7 @@ export default function AdminLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="glass-input w-full px-3 py-2 text-xs"
+              className="glass-input w-full px-3 py-2 text-xs font-mono"
             />
           </div>
 

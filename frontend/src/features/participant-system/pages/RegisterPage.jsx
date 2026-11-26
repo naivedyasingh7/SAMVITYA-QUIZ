@@ -6,7 +6,7 @@ import { Card } from '../../../shared/components/Card.jsx';
 import { User, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
-  const [tab, setTab] = useState('login'); // 'login' | 'register'
+  const [tab, setTab] = useState('register'); // 'register' | 'login'
   
   // Login form state
   const [codeOrEmail, setCodeOrEmail] = useState('P001');
@@ -51,12 +51,12 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      registerParticipant({
+      const created = registerParticipant({
         fullName: fullName.trim(),
         email: regEmail.trim(),
         organization: organization.trim()
       });
-      navigate('/participant/dashboard');
+      navigate(`/quiz-simulation?act=act-quiz-trivia&pid=${created.id}`);
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {

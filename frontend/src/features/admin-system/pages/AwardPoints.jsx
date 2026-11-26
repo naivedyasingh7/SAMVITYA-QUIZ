@@ -3,8 +3,7 @@ import { AdminSidebar } from '../components/AdminSidebar.jsx';
 import { adminService } from '../services/adminService.js';
 import { activityService } from '../services/activityService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
-import { QRScannerModal } from '../../../shared/components/QRScannerModal.jsx';
-import { Award, CheckCircle, Search, Camera, QrCode, Sparkles, User, AlertCircle } from 'lucide-react';
+import { Award, CheckCircle, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function AwardPoints() {
   const [participants, setParticipants] = useState([]);
@@ -13,10 +12,9 @@ export default function AwardPoints() {
   const [selectedActivityId, setSelectedActivityId] = useState('');
   const [points, setPoints] = useState(20);
   const [reason, setReason] = useState('Treasure Hunt: Clue completion');
-  const [adminName, setAdminName] = useState('admin-001');
+  const [adminName, setAdminName] = useState('ADMIN2026');
   const [statusMessage, setStatusMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -99,18 +97,9 @@ export default function AwardPoints() {
               Award & Record Offline Game Points
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Scan participant QR (QR 2) or choose username (P001, P002...), select game, and add points instantly.
+              Choose participant ID (P001, P002...), select offline game, and award points instantly.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsScannerOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 self-start sm:self-auto active:scale-95"
-          >
-            <Camera className="w-4 h-4" />
-            <span>Scan Participant QR Pass</span>
-          </button>
         </div>
 
         {statusMessage && (
@@ -252,13 +241,6 @@ export default function AwardPoints() {
             </button>
           </form>
         </div>
-
-        {/* QR Scanner Modal */}
-        <QRScannerModal
-          isOpen={isScannerOpen}
-          onClose={() => setIsScannerOpen(false)}
-          onParticipantFound={handleParticipantFound}
-        />
       </div>
     </div>
   );

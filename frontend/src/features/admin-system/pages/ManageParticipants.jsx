@@ -4,22 +4,37 @@ import { ParticipantTable } from '../components/ParticipantTable.jsx';
 import { adminService } from '../services/adminService.js';
 import { pointsService } from '../../automatic-scoring/services/pointsService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
-import { QRScannerModal } from '../../../shared/components/QRScannerModal.jsx';
-import { Users, Search, Camera, Plus, Minus, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, Search, Plus, Minus, X, CheckCircle, AlertCircle, Award } from 'lucide-react';
 
 export default function ManageParticipants() {
   const [participants, setParticipants] = useState([]);
+  const [offlineGames, setOfflineGames] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [search, setSearch] = useState('');
   const [activeModal, setActiveModal] = useState(null); // { participant, type: 'add' | 'deduct' }
   const [pointsVal, setPointsVal] = useState(20);
   const [reason, setReason] = useState('');
-  const [adminName, setAdminName] = useState('admin-001');
+  const [adminName, setAdminName] = useState('ADMIN2026');
   const [notice, setNotice] = useState(null);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  // Quick Offline Game Area state
+  const [quickParticipantId, setQuickParticipantId] = useState('');
+  const [quickGameId, setQuickGameId] = useState('');
+  const [quickPoints, setQuickPoints] = useState(20);
 
   const loadParticipants = async () => {
     const list = await adminService.getAllParticipants();
+    const games = eventStore.getActivities().filter((a) => a.type === 'offline_challenge');
+    const txs = eventStore.getTransactions();
     setParticipants(list);
+    setOfflineGames(games);
+    setTransactions(txs);
+    if (list.length > 0 && !quickParticipantId) {
+      setQuickParticipantId(list[0].participant_id || list[0].id);
+    }
+    if (games.length > 0 && !quickGameId) {
+      setQuickGameId(games[0].id);
+    }
   };
 
   useEffect(() => {
@@ -27,6 +42,47 @@ export default function ManageParticipants() {
     const unsub = eventStore.subscribe(() => loadParticipants());
     return unsub;
   }, []);
+
+  const handleToggleOfflineGame = async (participant, game) => {
+    try {
+      const awardPts = Math.min(Number(game.max_points) || 20, 50);
+      await adminService.awardOfflinePoints({
+        participant_id: participant.participant_id || participant.id,
+        activity_id: game.id,
+        points: awardPts,
+        reason: `${game.title}: Completed & ticked off`,
+        admin_id: adminName
+      });
+      setNotice({
+        type: 'success',
+        text: `Ticked off "${game.title}" (+${awardPts} pts) for ${participant.username || participant.participant_code}!`
+      });
+    } catch (err) {
+      setNotice({ type: 'error', text: err.message });
+    }
+  };
+
+  const handleQuickAward = async (e) => {
+    e.preventDefault();
+    if (!quickParticipantId || !quickGameId) return;
+    const game = offlineGames.find((g) => g.id === quickGameId);
+    const part = participants.find((p) => (p.participant_id || p.id) === quickParticipantId);
+    try {
+      await adminService.awardOfflinePoints({
+        participant_id: quickParticipantId,
+        activity_id: quickGameId,
+        points: Number(quickPoints),
+        reason: `${game?.title || 'Offline Game'}: Awarded by ${adminName}`,
+        admin_id: adminName
+      });
+      setNotice({
+        type: 'success',
+        text: `Awarded +${quickPoints} pts for ${game?.title || 'Offline Game'} to ${part?.username || 'Participant'}!`
+      });
+    } catch (err) {
+      setNotice({ type: 'error', text: err.message });
+    }
+  };
 
   const filtered = participants.filter((p) => {
     const q = search.toLowerCase().trim();
@@ -97,26 +153,78 @@ export default function ManageParticipants() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setIsScannerOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-indigo-200 border border-indigo-400/20 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-            >
-              <Camera className="w-4 h-4" />
-              <span>Scan QR Pass</span>
-            </button>
-
-            <div className="w-56 relative">
+            <div className="w-64 relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search username (e.g. P001)..."
+                placeholder="Search ID (P001) or name..."
                 className="w-full glass-input pl-9 pr-3 py-2 text-xs text-white rounded-xl"
               />
             </div>
           </div>
+        </div>
+
+        {/* Inline Offline Game Area — Give Points */}
+        <div className="glass-surface p-5 rounded-2xl border border-indigo-500/30 space-y-3">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
+              Offline Game Area — Give Points & Tick Off Games
+            </h3>
+          </div>
+          <form onSubmit={handleQuickAward} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end">
+            <div>
+              <label className="block text-[10px] font-mono uppercase text-slate-400 mb-1">Participant ID</label>
+              <select
+                value={quickParticipantId}
+                onChange={(e) => setQuickParticipantId(e.target.value)}
+                className="w-full glass-input px-3 py-2 text-white rounded-lg bg-slate-900"
+              >
+                {participants.map((p) => (
+                  <option key={p.participant_id || p.id} value={p.participant_id || p.id} className="bg-slate-900">
+                    {p.username || p.participant_code} — {p.full_name} ({p.total_points || 0} pts)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-mono uppercase text-slate-400 mb-1">Offline Game</label>
+              <select
+                value={quickGameId}
+                onChange={(e) => setQuickGameId(e.target.value)}
+                className="w-full glass-input px-3 py-2 text-white rounded-lg bg-slate-900"
+              >
+                {offlineGames.map((g) => (
+                  <option key={g.id} value={g.id} className="bg-slate-900">
+                    {g.title} (Max {g.max_points} pts)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-mono uppercase text-slate-400 mb-1">Points to Give</label>
+              <input
+                type="number"
+                min="1"
+                max="1000"
+                value={quickPoints}
+                onChange={(e) => setQuickPoints(e.target.value)}
+                className="w-full glass-input px-3 py-2 text-white font-mono rounded-lg"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="py-2 px-4 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold shadow-md shadow-indigo-600/20 transition-all"
+            >
+              Give Game Points
+            </button>
+          </form>
         </div>
 
         {notice && (
@@ -135,6 +243,9 @@ export default function ManageParticipants() {
         {/* Live Table */}
         <ParticipantTable
           participants={filtered}
+          offlineGames={offlineGames}
+          transactions={transactions}
+          onToggleOfflineGame={handleToggleOfflineGame}
           onAwardPoints={(p) => {
             setActiveModal({ participant: p, type: 'add' });
             setPointsVal(20);
@@ -251,17 +362,6 @@ export default function ManageParticipants() {
             </div>
           </div>
         )}
-
-        {/* QR Scanner */}
-        <QRScannerModal
-          isOpen={isScannerOpen}
-          onClose={() => setIsScannerOpen(false)}
-          onParticipantFound={(matched) => {
-            setActiveModal({ participant: matched, type: 'add' });
-            setPointsVal(20);
-            setReason('Treasure Hunt clue completion');
-          }}
-        />
       </div>
     </div>
   );

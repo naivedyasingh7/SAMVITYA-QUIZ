@@ -8,15 +8,15 @@ const STORAGE_KEY_ROLE = 'epms_role';
 const STORAGE_KEY_USER = 'epms_user';
 const STORAGE_KEY_LOCKOUT = 'epms_admin_lockout';
 
-// Configured via environment variables with safe event fallback
-const EXPECTED_ADMIN_EMAIL = (
-  (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_ADMIN_EMAIL) ||
-  'admin@samvitya.org'
-).toLowerCase();
+// Configured via environment variables with event defaults
+const EXPECTED_ADMIN_USERNAME = (
+  (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_ADMIN_USERNAME) ||
+  'ADMIN2026'
+).trim();
 
 const EXPECTED_ADMIN_SECRET = (
   (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_ADMIN_PASSWORD) ||
-  'SamVITya@2026'
+  'WRONGPASSWORD2026'
 );
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -76,7 +76,7 @@ export function AuthProvider({ children }) {
   /**
    * Log in as an Administrator with credential validation & brute-force rate limiting.
    */
-  const loginAdmin = ({ email, password } = {}) => {
+  const loginAdmin = ({ username, email, password } = {}) => {
     // Check brute-force lockout
     try {
       const rawLock = localStorage.getItem(STORAGE_KEY_LOCKOUT);
@@ -91,17 +91,17 @@ export function AuthProvider({ children }) {
       if (err.message.includes('Too many failed attempts')) throw err;
     }
 
-    const cleanEmail = sanitizeEmail(email || '');
+    const cleanUser = sanitizeText(username || email || '', 64);
     const cleanPass = String(password || '');
 
-    if (!cleanEmail || !cleanPass) {
-      throw new Error('Admin email and password are required.');
+    if (!cleanUser || !cleanPass) {
+      throw new Error('Admin username and password are required.');
     }
 
-    const validEmail = cleanEmail === EXPECTED_ADMIN_EMAIL || cleanEmail === 'admin@event.org';
+    const validUser = cleanUser === EXPECTED_ADMIN_USERNAME;
     const validPass = cleanPass === EXPECTED_ADMIN_SECRET;
 
-    if (!validEmail || !validPass) {
+    if (!validUser || !validPass) {
       try {
         const rawLock = localStorage.getItem(STORAGE_KEY_LOCKOUT);
         const lockState = rawLock ? JSON.parse(rawLock) : { attempts: 0, lockedUntil: null };
@@ -112,7 +112,7 @@ export function AuthProvider({ children }) {
           JSON.stringify({ attempts: lockedUntil ? 0 : nextAttempts, lockedUntil })
         );
       } catch (_) {}
-      throw new Error('Invalid administrator credentials.');
+      throw new Error('Invalid administrator username or password.');
     }
 
     // Clear lockout on success
@@ -122,8 +122,8 @@ export function AuthProvider({ children }) {
 
     const adminUser = {
       id: 'admin-001',
-      name: 'Event Administrator',
-      email: cleanEmail,
+      name: cleanUser,
+      username: cleanUser,
       role: 'admin'
     };
     setAuthSession('admin', adminUser);

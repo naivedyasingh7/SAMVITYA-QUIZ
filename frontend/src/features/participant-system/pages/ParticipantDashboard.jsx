@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../../shared/hooks/useAuth.js';
 import { participantService } from '../services/participantService.js';
 import { leaderboardService } from '../../leaderboard/services/leaderboardService.js';
-import { QRRegistration } from '../components/QRRegistration.jsx';
 import { eventStore } from '../../../shared/services/eventStore.js';
-import { Award, Zap, Target, History, Trophy, User, Sparkles, CheckCircle, Radio } from 'lucide-react';
+import { Award, Zap, Target, History, Trophy, User, Sparkles, CheckCircle, Radio, PlayCircle, Copy, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ParticipantDashboard() {
@@ -12,6 +11,8 @@ export default function ParticipantDashboard() {
   const [profile, setProfile] = useState(null);
   const [history, setHistory] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [offlineGames, setOfflineGames] = useState([]);
+  const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Default to P001 (Alex Mercer) if not logged in
@@ -22,9 +23,11 @@ export default function ParticipantDashboard() {
       const p = await participantService.getProfile(activeIdentifier);
       const h = await participantService.getMyHistory(p?.id || activeIdentifier);
       const lb = await leaderboardService.getRankings();
+      const games = eventStore.getActivities().filter((a) => a.type === 'offline_challenge');
       setProfile(p);
       setHistory(h);
       setLeaderboard(lb);
+      setOfflineGames(games);
     } catch (err) {
       console.error('Error loading participant dashboard:', err);
     } finally {
@@ -267,21 +270,71 @@ export default function ParticipantDashboard() {
           </div>
         </div>
 
-        {/* Right Column (1 span): Individual Participant QR (QR 2) */}
+        {/* Right Column (1 span): Unique Participant ID & Play Online Quiz */}
         <div className="space-y-6">
-          <QRRegistration
-            participantUsername={username}
-            participantCode={username}
-            participantName={pData.full_name}
-          />
+          <div className="glass-surface rounded-2xl p-6 border border-purple-500/30 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-purple-300 font-bold">
+                Your Unique Participant ID
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(username);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1800);
+                }}
+                className="text-[11px] font-mono text-slate-300 hover:text-white flex items-center gap-1 bg-white/[0.05] px-2 py-1 rounded-md border border-white/10"
+              >
+                {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                <span>{copied ? 'Copied' : 'Copy ID'}</span>
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-black/40 border border-white/10 text-center">
+              <div className="text-4xl font-black font-space tracking-wider text-white">
+                {username}
+              </div>
+              <div className="text-xs text-slate-400 mt-1">{pData.full_name}</div>
+            </div>
+
+            <Link
+              to={`/quiz-simulation?act=act-quiz-trivia&pid=${pData.id}`}
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all flex items-center justify-center gap-2"
+            >
+              <PlayCircle className="w-4 h-4" />
+              <span>Play Online Quiz (10 Questions)</span>
+            </Link>
+          </div>
 
           <div className="glass-card p-5 border border-white/10 space-y-3">
             <h4 className="font-bold text-xs text-white uppercase tracking-wider font-mono">
-              Offline Booth Check-In Guide
+              Offline Games Status
             </h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              When completing games like <strong>Treasure Hunt</strong> or the <strong>Stargazing Challenge</strong>, present your QR 2 badge to the station coordinator. They will scan your pass to immediately award game points to your account.
-            </p>
+            <div className="space-y-2">
+              {offlineGames.map((game) => {
+                const isDone = history.some(
+                  (tx) =>
+                    tx.activity_id === game.id ||
+                    (tx.reason || '').toLowerCase().includes(game.title.toLowerCase())
+                );
+                return (
+                  <div
+                    key={game.id}
+                    className={`flex items-center justify-between p-2.5 rounded-lg border text-xs ${
+                      isDone
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                        : 'bg-white/[0.02] border-white/[0.06] text-slate-400'
+                    }`}
+                  >
+                    <span className="font-medium">{game.title}</span>
+                    <span className="font-mono text-[10px] font-bold uppercase">
+                      {isDone ? '✓ Completed' : 'Pending'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

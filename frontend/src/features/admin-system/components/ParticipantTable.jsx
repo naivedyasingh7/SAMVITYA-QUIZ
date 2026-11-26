@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import { Award, PlusCircle, MinusCircle, Eye, Search, CheckCircle, X } from 'lucide-react';
 import { eventStore } from '../../../shared/services/eventStore.js';
 
-export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoints }) {
+export function ParticipantTable({
+  participants = [],
+  offlineGames = [],
+  transactions = [],
+  onAwardPoints,
+  onDeductPoints,
+  onToggleOfflineGame
+}) {
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [page, setPage] = useState(1);
   const pageSize = 25;
@@ -16,32 +23,43 @@ export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoi
     setSelectedProfile({ ...p, history });
   };
 
+  const isGameTicked = (participantId, game) => {
+    return transactions.some(
+      (tx) =>
+        tx.participant_id === participantId &&
+        (tx.activity_id === game.id ||
+          (tx.reason || '').toLowerCase().includes(game.title.toLowerCase()))
+    );
+  };
+
   return (
     <>
       <div className="overflow-x-auto glass-card border border-white/10 shadow-2xl">
         <table className="min-w-full divide-y divide-white/[0.06] text-left text-xs">
           <thead className="bg-white/[0.02] text-slate-400 font-mono uppercase text-[10px]">
             <tr>
-              <th className="py-3 px-4">Username</th>
+              <th className="py-3 px-4">Participant ID</th>
               <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4 text-right">Quiz Points</th>
-              <th className="py-3 px-4 text-right">Game Points</th>
-              <th className="py-3 px-4 text-right font-bold">Total Points</th>
+              <th className="py-3 px-4 text-right">Quiz Pts</th>
+              <th className="py-3 px-4 text-right">Game Pts</th>
+              <th className="py-3 px-4 text-right font-bold">Total Pts</th>
+              <th className="py-3 px-4">Offline Games Ticked Off</th>
               <th className="py-3 px-4 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04] text-slate-300">
             {paginatedParticipants.length === 0 ? (
               <tr>
-                <td colSpan="6" className="py-8 text-center text-xs text-slate-500 font-mono">
+                <td colSpan="7" className="py-8 text-center text-xs text-slate-500 font-mono">
                   No competitors found.
                 </td>
               </tr>
             ) : (
               paginatedParticipants.map((p) => {
+                const pid = p.participant_id || p.id;
                 const username = p.username || p.participant_code || 'P000';
                 return (
-                  <tr key={p.participant_id || p.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={pid} className="hover:bg-white/[0.02] transition-colors">
                     <td className="py-3 px-4 font-mono font-bold text-indigo-300 text-sm">
                       {username}
                     </td>
@@ -59,6 +77,29 @@ export function ParticipantTable({ participants = [], onAwardPoints, onDeductPoi
                     </td>
                     <td className="py-3 px-4 text-right font-mono font-black text-white text-base">
                       {p.total_points || 0}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-wrap gap-1.5">
+                        {offlineGames.map((game) => {
+                          const ticked = isGameTicked(pid, game);
+                          return (
+                            <button
+                              key={game.id}
+                              type="button"
+                              onClick={() => !ticked && onToggleOfflineGame?.(p, game)}
+                              title={ticked ? `${game.title} completed` : `Tick off ${game.title} (+${game.max_points} pts)`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono border transition-all ${
+                                ticked
+                                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold cursor-default'
+                                  : 'bg-white/[0.03] border-white/10 text-slate-400 hover:border-indigo-400/50 hover:text-white cursor-pointer'
+                              }`}
+                            >
+                              <span>{ticked ? '☑' : '☐'}</span>
+                              <span className="truncate max-w-[110px]">{game.title}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex items-center justify-center gap-1.5">
