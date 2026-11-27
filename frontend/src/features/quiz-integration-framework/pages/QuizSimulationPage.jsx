@@ -10,7 +10,7 @@ export default function QuizSimulationPage() {
   const [searchParams] = useSearchParams();
 
   const participantId = searchParams.get('pid') || 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81';
-  const attemptId = searchParams.get('aid') || `att-${Date.now()}`;
+  const [attemptId] = useState(() => searchParams.get('aid') || `att-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
   const activityId = searchParams.get('act') || 'act-quiz-tech-trivia';
 
   const [questions, setQuestions] = useState([]);
@@ -20,10 +20,14 @@ export default function QuizSimulationPage() {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    // Load live questions curated by Admin
-    const liveQuestions = questionBankService.getQuestions(activityId);
-    setQuestions(liveQuestions);
-  }, [activityId]);
+    // Jumble the 50-question bank and assign 10 random questions to this participant attempt
+    const randomized = questionBankService.getRandomizedQuizQuestions(
+      activityId,
+      10,
+      `${participantId}:${attemptId}`
+    );
+    setQuestions(randomized);
+  }, [activityId, participantId, attemptId]);
 
   const handleSelectAnswer = (qId, optionIdx) => {
     if (submissionResult) return;
@@ -98,9 +102,9 @@ export default function QuizSimulationPage() {
             </span>
             <span className="text-xs text-slate-400 font-mono">Attempt: {attemptId}</span>
           </div>
-          <h1 className="text-xl font-bold text-white mt-1.5 tracking-tight">Technical Quiz Challenge (10 Questions)</h1>
+          <h1 className="text-xl font-bold text-white mt-1.5 tracking-tight">Technical Quiz Challenge (10 Random Questions)</h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            10 foundational technical questions (10 points each). Instant automated grading into the live leaderboard.
+            10 randomized technical questions jumbled from the 50-question bank (10 points each). Instant automated grading into the live leaderboard.
           </p>
         </div>
 
