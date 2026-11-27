@@ -38,6 +38,27 @@ export const participantService = {
    */
   async getMyHistory(participantId) {
     return eventStore.getTransactions({ participantId });
+  },
+
+  /**
+   * Contract-aligned aliases (see shared/contracts/participant.contract.md).
+   */
+  async registerParticipant(data) {
+    return this.register({
+      full_name: data.full_name || data.fullName,
+      email: data.email,
+      organization: data.organization,
+      track: data.track
+    });
+  },
+
+  async getParticipantByCode(code) {
+    if (!code) return null;
+    return eventStore.getParticipantById(code);
+  },
+
+  async getParticipantProfile(id) {
+    return this.getProfile(id);
   }
 };
 export default participantService;

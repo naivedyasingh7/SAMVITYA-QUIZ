@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { storage } from '../../shared/utils/storage.js';
+import { storage } from '../../../shared/utils/storage.js';
 
 export function useParticipant() {
   const [participant, setParticipant] = useState(() => storage.get('participant_session'));
