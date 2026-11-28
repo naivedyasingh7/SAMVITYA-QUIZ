@@ -3,19 +3,16 @@ import { Trophy, Award, Search, Zap, Target } from 'lucide-react';
 
 export function LeaderboardTable({ entries = [] }) {
   const [search, setSearch] = useState('');
-  const [trackFilter, setTrackFilter] = useState('all');
   const [page, setPage] = useState(1);
   const pageSize = 25;
 
-  const tracks = ['all', 'AI & Systems', 'Cybersecurity', 'Algorithms', 'Web3 & DeFi', 'Robotics', 'UI/UX Design'];
-
   const filtered = entries.filter((entry) => {
-    const matchesSearch =
-      entry.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      entry.participant_code?.toLowerCase().includes(search.toLowerCase()) ||
-      entry.organization?.toLowerCase().includes(search.toLowerCase());
-    const matchesTrack = trackFilter === 'all' || entry.track === trackFilter;
-    return matchesSearch && matchesTrack;
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      entry.full_name?.toLowerCase().includes(q) ||
+      entry.participant_code?.toLowerCase().includes(q)
+    );
   });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -24,50 +21,37 @@ export function LeaderboardTable({ entries = [] }) {
 
   return (
     <div className="space-y-4">
-      {/* Search & Filter Strip */}
+      {/* Search Strip (Track filter removed - empty space preserved) */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="w-full sm:w-72 relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search competitor, code, or club..."
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search competitor or code..."
             className="w-full glass-input pl-9 pr-3 py-2 text-xs text-white rounded-xl"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          <span className="text-[10px] uppercase font-mono text-slate-400 mr-1 hidden sm:inline">Track:</span>
-          {tracks.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTrackFilter(t)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap transition-all ${
-                trackFilter === t
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-white/[0.04] text-slate-400 hover:text-white'
-              }`}
-            >
-              {t === 'all' ? 'All Tracks' : t}
-            </button>
-          ))}
-        </div>
+        <div className="hidden sm:block" aria-hidden="true" />
       </div>
 
       {/* Table Container */}
-      <div className="glass-card border border-white/10 overflow-hidden shadow-2xl">
+      <div className="glass-card border border-white/10 overflow-x-auto shadow-2xl">
         <table className="min-w-full divide-y divide-white/[0.06] text-left text-xs">
           <thead className="bg-white/[0.02] text-slate-400 font-mono uppercase text-[10px]">
             <tr>
-              <th className="py-3.5 px-4 w-16">Rank</th>
-              <th className="py-3.5 px-4">Competitor</th>
-              <th className="py-3.5 px-4">Guild / Club</th>
-              <th className="py-3.5 px-4">Track</th>
-              <th className="py-3.5 px-4 text-right">Quiz Pts</th>
-              <th className="py-3.5 px-4 text-right">Offline Pts</th>
-              <th className="py-3.5 px-4 text-right font-bold">Total Points</th>
+              <th className="py-3.5 px-3 sm:px-4 w-14 sm:w-16">Rank</th>
+              <th className="py-3.5 px-3 sm:px-4">Competitor</th>
+              <th className="hidden md:table-cell py-3.5 px-4" aria-label="Empty spacer" />
+              <th className="hidden md:table-cell py-3.5 px-4" aria-label="Empty spacer" />
+              <th className="py-3.5 px-2.5 sm:px-4 text-right">Quiz</th>
+              <th className="py-3.5 px-2.5 sm:px-4 text-right">Offline</th>
+              <th className="py-3.5 px-3 sm:px-4 text-right font-bold">Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04] text-slate-300">
@@ -114,15 +98,9 @@ export function LeaderboardTable({ entries = [] }) {
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4 text-slate-300">
-                      {entry.organization || 'VIT Technical Guild'}
-                    </td>
+                    <td className="hidden md:table-cell py-3.5 px-4" />
 
-                    <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-white/[0.05] border border-white/10 text-slate-300">
-                        {entry.track || 'General Tech'}
-                      </span>
-                    </td>
+                    <td className="hidden md:table-cell py-3.5 px-4" />
 
                     <td className="py-3.5 px-4 text-right font-mono text-indigo-300">
                       {entry.quiz_points || 0}

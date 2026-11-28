@@ -22,7 +22,7 @@ export function TopThree({ topEntries = [] }) {
               Runner Up
             </span>
             <h4 className="font-extrabold text-white text-base mt-1 truncate">{second.full_name}</h4>
-            <p className="text-[11px] text-slate-400 truncate">{second.organization || 'VIT Guild'}</p>
+            <p className="text-[11px] min-h-[16px]" aria-hidden="true">&nbsp;</p>
             <div className="mt-3 pt-2.5 border-t border-white/[0.08] flex items-center justify-center gap-1 text-sm font-mono font-black text-slate-200">
               <Award className="w-4 h-4 text-slate-400" />
               <span>{second.total_points} pts</span>
@@ -45,7 +45,7 @@ export function TopThree({ topEntries = [] }) {
               <span>Grand Champion</span>
             </span>
             <h4 className="font-black text-white text-lg mt-1 tracking-tight truncate">{first.full_name}</h4>
-            <p className="text-xs text-amber-200/80 truncate">{first.organization || 'VIT Technical Guild'}</p>
+            <p className="text-xs min-h-[16px]" aria-hidden="true">&nbsp;</p>
             <div className="mt-3 pt-2.5 border-t border-amber-500/20 flex items-center justify-center gap-1.5 text-lg font-mono font-black text-amber-300">
               <Trophy className="w-5 h-5 text-amber-400" />
               <span>{first.total_points} pts</span>
@@ -67,7 +67,7 @@ export function TopThree({ topEntries = [] }) {
               2nd Runner Up
             </span>
             <h4 className="font-extrabold text-white text-base mt-1 truncate">{third.full_name}</h4>
-            <p className="text-[11px] text-slate-400 truncate">{third.organization || 'VIT Guild'}</p>
+            <p className="text-[11px] min-h-[16px]" aria-hidden="true">&nbsp;</p>
             <div className="mt-3 pt-2.5 border-t border-white/[0.08] flex items-center justify-center gap-1 text-sm font-mono font-black text-amber-400">
               <Award className="w-4 h-4 text-amber-600" />
               <span>{third.total_points} pts</span>

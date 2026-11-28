@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+﻿import { describe, it, expect, beforeEach } from 'vitest';
 import { eventStore } from '../../frontend/src/shared/services/eventStore.js';
 
 describe('Performance & Scale: 500-User Event Load Test', () => {
@@ -12,7 +12,7 @@ describe('Performance & Scale: 500-User Event Load Test', () => {
     // 1. Register 500 participants
     const users = Array.from({ length: 500 }, (_, i) => ({
       fullName: `Competitor ${i + 1}`,
-      email: `competitor.${i + 1}@samvitya.edu`,
+      email: `competitor.${i + 1}@protocolzero.edu`,
       organization: `Club ${(i % 8) + 1}`,
       track: i % 2 === 0 ? 'AI & Systems' : 'Cybersecurity'
     }));
@@ -56,7 +56,7 @@ describe('Performance & Scale: 500-User Event Load Test', () => {
     // 4. Verify O(1) lookup for a 500th-range participant
     const sample = eventStore.getParticipantById(created[499].username);
     expect(sample).not.toBeNull();
-    expect(sample.email).toBe('competitor.500@samvitya.edu');
+    expect(sample.email).toBe('competitor.500@protocolzero.edu');
 
     // 5. Verify Backup & Restore fallback under 500-user load
     const snapshot = eventStore.exportBackupSnapshot();

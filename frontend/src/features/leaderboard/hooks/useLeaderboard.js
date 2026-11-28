@@ -43,35 +43,48 @@ export function useLeaderboard(options = {}) {
       refresh();
     });
 
-    // 2. Subscribe to Supabase Realtime channel if active client exists
+    // 2. Supabase sync: Realtime WebSocket for admins only; jittered polling for 500+ public viewers
+    const isMockMode = import.meta.env.VITE_ENABLE_MOCK_DATA !== 'false';
+
     let realtimeChannel = null;
-    try {
-      if (supabase && typeof supabase.channel === 'function') {
-        realtimeChannel = supabase
-          .channel('public:leaderboard_realtime')
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'points_transactions' },
-            () => refresh()
-          )
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'winner_declarations' },
-            () => refresh()
-          )
-          .subscribe();
+    let pollTimer = null;
+
+    if (!isMockMode) {
+      if (options.enableRealtime && supabase && typeof supabase.channel === 'function') {
+        try {
+          realtimeChannel = supabase
+            .channel('public:leaderboard_realtime')
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table: 'points_transactions' },
+              () => refresh()
+            )
+            .on(
+              'postgres_changes',
+              { event: '*', schema: 'public', table: 'winner_declarations' },
+              () => refresh()
+            )
+            .subscribe();
+        } catch (err) {
+          console.warn('Supabase realtime subscription notice:', err.message);
+        }
+      } else {
+        // Staggered 10-15s polling avoids Supabase Free 200-connection WebSocket limit at 500 users
+        const jitterMs = 10000 + Math.floor(Math.random() * 5000);
+        pollTimer = setInterval(() => {
+          refresh();
+        }, jitterMs);
       }
-    } catch (err) {
-      console.warn('Supabase realtime subscription notice:', err.message);
     }
 
     return () => {
       if (typeof unsubStore === 'function') unsubStore();
+      if (pollTimer) clearInterval(pollTimer);
       if (realtimeChannel && typeof realtimeChannel.unsubscribe === 'function') {
         realtimeChannel.unsubscribe();
       }
     };
-  }, [refresh]);
+  }, [refresh, options.enableRealtime]);
 
   return { entries, isLocked, isLoading, refresh };
 }

@@ -1,4 +1,4 @@
-# Event Points Management System
+﻿# Event Points Management System
 
 A unified, modular monorepo designed for high-concurrency event point tracking, quiz ingestion, automated scoring, real-time leaderboards, and administrative controls.
 
@@ -67,7 +67,7 @@ event-points-management-system/
 | **2** | `frontend/src/features/admin-system/` | Admin Auth, Activity Management, Offline Points, Adjustments | Suvradeep | `feature/admin-system` |
 | **3** | `frontend/src/features/quiz-integration-framework/` | Provider Adapters, Quiz Launch, Ingestion, Matching | Ashwin | `feature/quiz-integration-framework` |
 | **4** | `frontend/src/features/automatic-scoring/` | Result Validation, Scoring Engine, Points Ledger, Deductions | Divya | `feature/automatic-scoring` |
-| **5** | `frontend/src/features/leaderboard/` | Live Ranks, Cumulative Totals, Analytics, Winner Declaration | Priyanshu | `feature/leaderboard` |
+| **5** | `frontend/src/features/leaderboard/` | Live Ranks, Cumulative Totals, Analytics, Winner Declaration | Priyansh | `feature/leaderboard` |
 | **6** | `frontend/src/features/testing-and-deployment/` | Multi-user QA, Security, Idempotency, E2E, CI/CD Pipeline | Naivedya | `feature/testing-and-deployment` |
 
 ---

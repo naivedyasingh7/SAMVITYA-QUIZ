@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { leaderboardService } from '../services/leaderboardService.js';
 import { adminService } from '../../admin-system/services/adminService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
@@ -13,7 +13,7 @@ const COLORS = ['#A855F7', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#6366F1'
 export default function AdminAnalytics() {
   const [rankings, setRankings] = useState([]);
   const [isLocked, setIsLocked] = useState(false);
-  const [declarationTitle, setDeclarationTitle] = useState('samVITya 2026 Grand Championship Champions');
+  const [declarationTitle, setDeclarationTitle] = useState('Protocol Zero 2026 Grand Championship Champions');
   const [modalOpen, setModalOpen] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
@@ -196,7 +196,7 @@ export default function AdminAnalytics() {
                 Declare Final Winners & Lock Scores
               </h3>
               <p className="text-xs text-slate-300 mt-1.5">
-                This locks the leaderboard against further automated submissions. The top 3 will be enshrined as the official samVITya '26 champions.
+                This locks the leaderboard against further automated submissions. The top 3 will be enshrined as the official Protocol Zero '26 champions.
               </p>
             </div>
 

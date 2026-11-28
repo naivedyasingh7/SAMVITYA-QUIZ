@@ -1,4 +1,4 @@
-# 🚀 Teammate Onboarding Guide
+﻿# 🚀 Teammate Onboarding Guide
 
 Welcome to the team! We are building the **Event Points Management System** across 6 independent modules.
 
@@ -40,7 +40,7 @@ git checkout develop
 git checkout feature/automatic-scoring
 ```
 
-### If you are Priyanshu (Leaderboard):
+### If you are Priyansh (Leaderboard):
 ```bash
 git clone <repository-url>
 cd event-points-management-system

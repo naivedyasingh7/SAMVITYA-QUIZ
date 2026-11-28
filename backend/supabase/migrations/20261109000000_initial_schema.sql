@@ -1,4 +1,4 @@
--- ====================================================================
+﻿-- ====================================================================
 -- Event Points Management System - Initial Migration
 -- Approved centralized schema across 6 independent modules
 -- ====================================================================
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS public.points_transactions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 10. Leaderboard Table (Owner: Priyanshu)
+-- 10. Leaderboard Table (Owner: Priyansh)
 CREATE TABLE IF NOT EXISTS public.leaderboard (
     participant_id UUID PRIMARY KEY REFERENCES public.participants(id) ON DELETE CASCADE,
     total_points INTEGER NOT NULL DEFAULT 0,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS public.leaderboard (
     last_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 11. Winner Declarations Table (Owner: Priyanshu)
+-- 11. Winner Declarations Table (Owner: Priyansh)
 CREATE TABLE IF NOT EXISTS public.winner_declarations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(128) NOT NULL,

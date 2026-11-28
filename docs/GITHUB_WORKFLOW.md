@@ -1,4 +1,4 @@
-# GitHub Collaboration & Workflow Guide
+﻿# GitHub Collaboration & Workflow Guide
 
 To ensure high development velocity without collisions among 6 developers, follow this exact GitHub workflow.
 
@@ -12,7 +12,7 @@ To ensure high development velocity without collisions among 6 developers, follo
 | **suvradeep** | Admin System | `feature/admin-system` |
 | **Ashwin** | Quiz Integration Framework | `feature/quiz-integration-framework` |
 | **Divya** | Automatic Scoring Engine | `feature/automatic-scoring` |
-| **Priyanshu** | Leaderboard & Analytics | `feature/leaderboard` |
+| **Priyansh** | Leaderboard & Analytics | `feature/leaderboard` |
 | **Naivedya** | Testing & Deployment | `feature/testing-and-deployment` |
 
 ---
@@ -41,7 +41,7 @@ Only edit files within your feature directory:
 - Suvradeep: `frontend/src/features/admin-system/`
 - Ashwin: `frontend/src/features/quiz-integration-framework/`
 - Divya: `frontend/src/features/automatic-scoring/`
-- Priyanshu: `frontend/src/features/leaderboard/`
+- Priyansh: `frontend/src/features/leaderboard/`
 - Naivedya: `frontend/src/features/testing-and-deployment/` & `tests/`
 
 ### Step 4: Commit Your Work

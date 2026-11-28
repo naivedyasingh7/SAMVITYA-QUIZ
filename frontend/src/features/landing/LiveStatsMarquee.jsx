@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Sparkles, Zap, Shield, Trophy, Cpu, Code2 } from 'lucide-react';
 
 export function LiveStatsMarquee() {
@@ -12,7 +12,7 @@ export function LiveStatsMarquee() {
   ];
 
   const reverseItems = [
-    { text: 'VIT-AP ANNUAL TECHNICAL EXTRAVAGANZA', icon: Sparkles, color: 'text-pink-400' },
+    { text: 'VIT B ANNUAL TECHNICAL EXTRAVAGANZA', icon: Sparkles, color: 'text-pink-400' },
     { text: 'OFFLINE ROBOTICS & BOOTH CHALLENGES', icon: Cpu, color: 'text-amber-400' },
     { text: 'PROVIDER-AGNOSTIC QUIZ ADAPTERS', icon: Code2, color: 'text-cyan-400' },
     { text: 'AUTOMATED PROPORTIONAL SCORING', icon: Zap, color: 'text-emerald-400' },

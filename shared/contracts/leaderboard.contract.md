@@ -1,6 +1,6 @@
-# Leaderboard Interface Contract
+﻿# Leaderboard Interface Contract
 
-- **Owner:** Priyanshu (`frontend/src/features/leaderboard/`)
+- **Owner:** Priyansh (`frontend/src/features/leaderboard/`)
 - **Key Tables:** `leaderboard`, `winner_declarations`
 - **Exported Methods / Hooks:**
   - `useLeaderboard()`: Returns `{ entries, isLoading, isLocked, refresh }`

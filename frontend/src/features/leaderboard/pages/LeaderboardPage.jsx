@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useLeaderboard } from '../hooks/useLeaderboard.js';
 import { leaderboardService } from '../services/leaderboardService.js';
 import { TopThree } from '../components/TopThree.jsx';
@@ -28,7 +28,7 @@ export default function LeaderboardPage() {
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight font-space">
-            samVITya '26 Grand Championship Standings
+            Protocol Zero '26 Grand Championship Standings
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
             Live cumulative scores computed from validated speed quizzes, lab escape rooms, and technical hack challenges.

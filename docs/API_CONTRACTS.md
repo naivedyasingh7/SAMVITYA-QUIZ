@@ -1,4 +1,4 @@
-# API Contracts & Interfaces
+﻿# API Contracts & Interfaces
 
 This document describes all standard endpoints, request bodies, response shapes, and error standards. All module developers must adhere to these exact structures.
 
@@ -177,7 +177,7 @@ This document describes all standard endpoints, request bodies, response shapes,
 
 ---
 
-### 5. Leaderboard (Priyanshu)
+### 5. Leaderboard (Priyansh)
 - **GET `/api/leaderboard`**
   - **Query Params:** `?limit=50&offset=0`
   - **Response (200 OK):**

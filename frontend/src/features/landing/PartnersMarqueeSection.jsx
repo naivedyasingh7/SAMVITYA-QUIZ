@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Database, Cpu, Shield, Globe, Terminal, Code2, Cloud, Sparkles } from 'lucide-react';
 
 export function PartnersMarqueeSection() {
@@ -8,7 +8,7 @@ export function PartnersMarqueeSection() {
     { name: 'SUPABASE EDGE FUNCTIONS', category: 'Serverless Deno Compute' },
     { name: 'REACT 18 & VITE', category: 'Client Framework' },
     { name: 'TAILWIND CSS', category: 'Styling & Design System' },
-    { name: 'VIT-AP UNIVERSITY', category: 'Host Institution' },
+    { name: 'VIT B UNIVERSITY', category: 'Host Institution' },
     { name: 'SCSE FOSTA', category: 'Dept. of CSE Organizing Body' },
     { name: 'GITHUB MONOREPO', category: 'Version Control & CI/CD' }
   ];

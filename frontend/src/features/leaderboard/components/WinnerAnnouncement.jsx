@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Trophy, Crown, Sparkles, Lock } from 'lucide-react';
 
@@ -24,7 +24,7 @@ export function WinnerAnnouncement({ declaration }) {
       </div>
 
       <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-space max-w-2xl mx-auto">
-        {declaration.title || 'samVITya 2026 Grand Championship Winners Declared!'}
+        {declaration.title || 'Protocol Zero 2026 Grand Championship Winners Declared!'}
       </h2>
       <p className="text-xs text-slate-300 mt-2 max-w-xl mx-auto">
         All scores have been officially validated and finalized. Congratulations to the champions!

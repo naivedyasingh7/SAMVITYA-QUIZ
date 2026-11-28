@@ -1,4 +1,4 @@
-# Development Roadmap
+﻿# Development Roadmap
 
 Six phases, each one buildable and testable on its own.
 
@@ -56,7 +56,7 @@ Six phases, each one buildable and testable on its own.
 - [ ] Activity scoring rule calculations (linear percentage conversion)
 - [ ] Ledger entry creator inserting verified `points_transactions`
 
-### Phase 5: Leaderboard (Priyanshu)
+### Phase 5: Leaderboard (Priyansh)
 - [ ] Real-time leaderboard table sorting participants by cumulative points
 - [ ] Top 3 podium display with avatar and badges
 - [ ] Detailed participant breakdown modal (online vs offline points)

@@ -9,6 +9,8 @@ coverage
 # Production
 dist
 build
+supabase/.temp
+backend/supabase/.temp
 
 # Environment Variables
 .env

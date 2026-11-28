@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import QRCode from 'qrcode';
 import confetti from 'canvas-confetti';
 import { X, CheckCircle, QrCode, Sparkles, User, Mail, School, Copy, Download } from 'lucide-react';
@@ -27,7 +27,7 @@ export function QRRegistrationModal({ isOpen, onClose, onRegistered }) {
       participant_code: randomCode,
       full_name: fullName,
       email: email,
-      organization: organization || 'VIT-AP University',
+      organization: organization || 'VIT B University',
       total_points: 0,
       online_points: 0,
       offline_points: 0,
@@ -138,7 +138,7 @@ export function QRRegistrationModal({ isOpen, onClose, onRegistered }) {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="alex.mercer@vitap.ac.in"
+                    placeholder="alex.mercer@vitb.ac.in"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm transition-all"
                   />
                 </div>

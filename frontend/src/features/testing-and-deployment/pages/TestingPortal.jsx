@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { TestingDashboard } from '../components/TestingDashboard.jsx';
 import { Cpu, ShieldCheck, CheckCircle2, GitBranch, Terminal } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export default function TestingPortal() {
           </span>
         </div>
         <h2 className="text-2xl font-black text-white tracking-tight font-space">
-          samVITya '26 Automated QA & Stress Testing Lab
+          Protocol Zero '26 Automated QA & Stress Testing Lab
         </h2>
         <p className="text-xs text-slate-400 mt-0.5">
           Execute multi-participant concurrency trials, stress test idempotency guards, seed test fixtures, and verify system integrity.

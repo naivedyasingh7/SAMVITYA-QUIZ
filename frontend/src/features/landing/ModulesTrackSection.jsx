@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { UserCheck, Shield, Layers, Award, Trophy, CheckSquare, ArrowUpRight, Code, Database, ChevronRight } from 'lucide-react';
 
 export function ModulesTrackSection() {
@@ -80,7 +80,7 @@ export function ModulesTrackSection() {
     {
       phase: 'Phase 5',
       title: 'Live Leaderboard',
-      lead: 'Priyanshu',
+      lead: 'Priyansh',
       branch: 'feature/leaderboard',
       icon: Trophy,
       color: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 text-emerald-400',

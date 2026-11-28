@@ -1,22 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-const getEnv = (key) => {
-  try {
-    if (typeof process !== 'undefined' && process?.env?.[key]) {
-      return process.env[key];
-    }
-  } catch (_) {}
-
-  try {
-    if (typeof import.meta !== 'undefined' && import.meta?.env?.[key]) {
-      return import.meta.env[key];
-    }
-  } catch (_) {}
-
-  return '';
-};
-
-const supabaseUrl = getEnv('VITE_SUPABASE_URL') || 'https://placeholder.supabase.co';
-const supabaseKey = getEnv('VITE_SUPABASE_ANON_KEY') || 'placeholder-key';
+const supabaseUrl =
+  import.meta.env?.VITE_SUPABASE_URL ||
+  (typeof process !== 'undefined' ? process.env?.VITE_SUPABASE_URL : '') ||
+  'https://placeholder.supabase.co';
+const supabaseKey =
+  import.meta.env?.VITE_SUPABASE_ANON_KEY ||
+  (typeof process !== 'undefined' ? process.env?.VITE_SUPABASE_ANON_KEY : '') ||
+  'placeholder-key';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);

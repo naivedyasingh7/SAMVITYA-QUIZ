@@ -43,20 +43,35 @@ export default function ManageParticipants() {
     return unsub;
   }, []);
 
-  const handleToggleOfflineGame = async (participant, game) => {
+  const handleToggleOfflineGame = async (participant, game, isCurrentlyTicked, netPoints) => {
     try {
-      const awardPts = Math.min(Number(game.max_points) || 20, 50);
-      await adminService.awardOfflinePoints({
-        participant_id: participant.participant_id || participant.id,
-        activity_id: game.id,
-        points: awardPts,
-        reason: `${game.title}: Completed & ticked off`,
-        admin_id: adminName
-      });
-      setNotice({
-        type: 'success',
-        text: `Ticked off "${game.title}" (+${awardPts} pts) for ${participant.username || participant.participant_code}!`
-      });
+      if (isCurrentlyTicked) {
+        const deductPts = Math.abs(Number(netPoints) || Math.min(Number(game.max_points) || 20, 50));
+        await adminService.awardOfflinePoints({
+          participant_id: participant.participant_id || participant.id,
+          activity_id: game.id,
+          points: -deductPts,
+          reason: `${game.title}: Unticked / removed`,
+          admin_id: adminName
+        });
+        setNotice({
+          type: 'success',
+          text: `Removed tick for "${game.title}" (-${deductPts} pts) for ${participant.username || participant.participant_code}.`
+        });
+      } else {
+        const awardPts = Math.min(Number(game.max_points) || 20, 50);
+        await adminService.awardOfflinePoints({
+          participant_id: participant.participant_id || participant.id,
+          activity_id: game.id,
+          points: awardPts,
+          reason: `${game.title}: Completed & ticked off`,
+          admin_id: adminName
+        });
+        setNotice({
+          type: 'success',
+          text: `Ticked off "${game.title}" (+${awardPts} pts) for ${participant.username || participant.participant_code}!`
+        });
+      }
     } catch (err) {
       setNotice({ type: 'error', text: err.message });
     }
@@ -136,53 +151,70 @@ export default function ManageParticipants() {
 
       <div className="flex-1 p-6 lg:p-8 space-y-6 max-w-7xl">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 text-indigo-400" />
               <span className="text-[11px] font-mono uppercase tracking-widest text-indigo-300 font-semibold">
-                Competitor Directory
+                Competitor Directory ({filtered.length} of {participants.length})
               </span>
             </div>
             <h2 className="text-2xl font-black text-white tracking-tight font-space">
               Participant Management
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Live table of all registered competitors, quiz points, offline game points, and total score.
+              Live table of registered competitors, quiz points, offline game points, and total score.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="w-64 relative">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="w-full sm:w-72 relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search ID (P001) or name..."
-                className="w-full glass-input pl-9 pr-3 py-2 text-xs text-white rounded-xl"
+                placeholder="Search ID (P001), name, or email..."
+                className="w-full glass-input pl-9 pr-8 py-2.5 text-xs text-white rounded-xl"
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
         </div>
 
         {/* Inline Offline Game Area — Give Points */}
         <div className="glass-surface p-5 rounded-2xl border border-indigo-500/30 space-y-3">
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
-              Offline Game Area — Give Points & Tick Off Games
-            </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-indigo-400" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
+                Quick Offline Game Award
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">
+              Instant sync to leaderboard
+            </span>
           </div>
-          <form onSubmit={handleQuickAward} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end">
+          <form onSubmit={handleQuickAward} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs items-end">
             <div>
-              <label className="block text-[10px] font-mono uppercase text-slate-400 mb-1">Participant ID</label>
+              <label className="block text-[10px] font-mono uppercase text-slate-400 mb-1">
+                Participant (Filtered: {filtered.length})
+              </label>
               <select
                 value={quickParticipantId}
                 onChange={(e) => setQuickParticipantId(e.target.value)}
                 className="w-full glass-input px-3 py-2 text-white rounded-lg bg-slate-900"
               >
-                {participants.map((p) => (
+                {filtered.slice(0, 100).map((p) => (
                   <option key={p.participant_id || p.id} value={p.participant_id || p.id} className="bg-slate-900">
                     {p.username || p.participant_code} — {p.full_name} ({p.total_points || 0} pts)
                   </option>

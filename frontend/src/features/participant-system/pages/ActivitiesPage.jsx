@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { activityService } from '../../admin-system/services/activityService.js';
 import { ActivityCard } from '../components/ActivityCard.jsx';
 import { useAuth } from '../../../shared/hooks/useAuth.js';
@@ -47,7 +47,7 @@ export default function ActivitiesPage() {
             All Club Activities & Challenges
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
-            Choose from high-speed online algorithmic quizzes, reverse engineering labs, and robotics trials. Points count towards the grand samVITya 2026 podium.
+            Choose from high-speed online algorithmic quizzes, reverse engineering labs, and robotics trials. Points count towards the grand Protocol Zero 2026 podium.
           </p>
         </div>
 

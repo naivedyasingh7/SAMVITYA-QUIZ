@@ -1,4 +1,4 @@
-# Contributing Guidelines
+﻿# Contributing Guidelines
 
 Welcome to the **Event Points Management System** monorepo! This project is maintained by 6 concurrent developers. Strict adherence to our Git workflow and API contracts ensures smooth integration.
 
@@ -16,7 +16,7 @@ main (protected - production only)
       ├── feature/admin-system                (Suvradeep)
       ├── feature/quiz-integration-framework  (Ashwin)
       ├── feature/automatic-scoring           (Divya)
-      ├── feature/leaderboard                 (Priyanshu)
+      ├── feature/leaderboard                 (Priyansh)
       └── feature/testing-and-deployment      (Naivedya)
 ```
 
@@ -37,7 +37,7 @@ main (protected - production only)
 - **Suvradeep:** Works in `frontend/src/features/admin-system/`
 - **Ashwin:** Works in `frontend/src/features/quiz-integration-framework/` & `backend/services/quiz/`
 - **Divya:** Works in `frontend/src/features/automatic-scoring/` & `backend/services/scoring/`
-- **Priyanshu:** Works in `frontend/src/features/leaderboard/`
+- **Priyansh:** Works in `frontend/src/features/leaderboard/`
 - **Naivedya:** Works in `tests/` and `frontend/src/features/testing-and-deployment/`
 
 **Integrator Owned (Protected):**

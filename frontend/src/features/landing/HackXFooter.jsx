@@ -1,13 +1,13 @@
-import React from 'react';
+﻿import React from 'react';
 
 export function HackXFooter() {
   const team = [
-    { name: 'Srikirti', role: 'Participant System', phone: '+91 98401 22341', email: 'srikirti@vitap.ac.in' },
-    { name: 'Suvradeep', role: 'Admin & Operations', phone: '+91 87654 32190', email: 'suvradeep@vitap.ac.in' },
-    { name: 'Ashwin', role: 'Quiz Integration', phone: '+91 91234 56789', email: 'ashwin@vitap.ac.in' },
-    { name: 'Divya', role: 'Automatic Scoring', phone: '+91 99887 76655', email: 'divya@vitap.ac.in' },
-    { name: 'Priyanshu', role: 'Leaderboard & Analytics', phone: '+91 97766 55443', email: 'priyanshu@vitap.ac.in' },
-    { name: 'Naivedya', role: 'Testing & QA Suite', phone: '+91 94433 22110', email: 'naivedya@vitap.ac.in' }
+    { name: 'Srikirti', role: 'Participant System', phone: '+91 98401 22341', email: 'srikirti@vitb.ac.in' },
+    { name: 'Suvradeep', role: 'Admin & Operations', phone: '+91 87654 32190', email: 'suvradeep@vitb.ac.in' },
+    { name: 'Ashwin', role: 'Quiz Integration', phone: '+91 91234 56789', email: 'ashwin@vitb.ac.in' },
+    { name: 'Divya', role: 'Automatic Scoring', phone: '+91 99887 76655', email: 'divya@vitb.ac.in' },
+    { name: 'Priyansh', role: 'Leaderboard & Analytics', phone: '+91 97766 55443', email: 'Priyansh@vitb.ac.in' },
+    { name: 'Naivedya', role: 'Testing & QA Suite', phone: '+91 94433 22110', email: 'naivedya@vitb.ac.in' }
   ];
 
   return (
@@ -56,10 +56,10 @@ export function HackXFooter() {
               Contact us
             </p>
             <a
-              href="mailto:samvitya@vitap.ac.in"
+              href="mailto:protocolzero@vitb.ac.in"
               className="font-mono text-sm sm:text-base text-purple-300 hover:text-white transition-colors"
             >
-              samvitya@vitap.ac.in
+              protocolzero@vitb.ac.in
             </a>
           </div>
         </div>
@@ -94,7 +94,7 @@ export function HackXFooter() {
       {/* Bottom Bar: Copyright & Socials */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-12 sm:pt-16 border-t border-white/10 mt-16 text-xs font-mono text-gray-500">
         <div>
-          © 2026 samVITya Event Points Management System. All rights reserved.
+          © 2026 Protocol Zero Event Points Management System. All rights reserved.
         </div>
         <div className="flex items-center gap-6">
           <a
@@ -114,7 +114,7 @@ export function HackXFooter() {
             Instagram
           </a>
           <span className="text-gray-600">|</span>
-          <span className="text-gray-400">VIT-AP University</span>
+          <span className="text-gray-400">VIT B University</span>
         </div>
       </div>
 

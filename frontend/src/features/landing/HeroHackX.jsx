@@ -37,7 +37,7 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
         <div className="overflow-visible py-1 sm:py-2 w-full">
           <div className="relative inline-block w-full max-w-[760px] mx-auto">
             
-            {/* Bold Stylized Geometric SVG Logotype for SAMVITYA */}
+            {/* Bold Stylized Geometric SVG Logotype for Protocol Zero */}
             <div className="w-[85vw] max-w-[620px] md:w-[60vw] md:max-w-[760px] mx-auto my-2">
               <svg
                 viewBox="0 0 800 170"
@@ -47,21 +47,21 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
               >
                 <text
                   x="50%"
-                  y="62%"
+                  y="56%"
                   dominantBaseline="middle"
                   textAnchor="middle"
-                  fill="url(#samvityaGradient)"
+                  fill="url(#ProtocolZeroGradient)"
                   style={{
                     fontFamily: 'Montserrat, sans-serif',
                     fontWeight: 900,
-                    fontSize: '115px',
-                    letterSpacing: '0.04em'
+                    fontSize: '82px',
+                    letterSpacing: '0.05em'
                   }}
                 >
-                  SAMVITYA
+                  PROTOCOL ZERO
                 </text>
                 <defs>
-                  <linearGradient id="samvityaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <linearGradient id="ProtocolZeroGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#FFFFFF" />
                     <stop offset="45%" stopColor="#FAF8F5" />
                     <stop offset="75%" stopColor="#E0C3FC" />
@@ -72,7 +72,7 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
             </div>
 
             {/* Floating Circular Prize Badge (Exact HackX 4.0 Style) */}
-            <div className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 md:-top-4 md:right-[5%] z-30">
+            <div className="absolute -top-3 right-0 sm:-top-4 sm:-right-4 md:-top-4 md:right-[5%] z-30">
               <div className="flex h-16 w-16 transform items-center justify-center rounded-full bg-[#8b7a9f]/25 backdrop-blur-md border border-white/15 lg:h-24 lg:w-24 shadow-md transition-transform hover:scale-110">
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span className="text-white transform text-base font-extrabold lg:text-2xl tracking-tight">
@@ -88,10 +88,10 @@ export function HeroHackX({ onOpenRegister, onOpenSimulator, onOpenEventQR }) {
         </div>
 
         {/* 4. Hairline Accent Line with Instrument Serif Italic Phrase */}
-        <div className="overflow-visible pb-3 w-full -mt-2 sm:-mt-4 md:-mt-6">
-          <div className="flex items-center justify-between w-full gap-3 sm:gap-4 max-w-4xl mx-auto">
-            <div className="h-[1.5px] flex-1 bg-[#F0ABFC]"></div>
-            <span className="font-serif italic font-normal normal-case tracking-wide text-lg sm:text-2xl md:text-3xl lg:text-[2.2rem] leading-normal text-white whitespace-nowrap pt-0.5 pb-2 pr-4 inline-block flex-shrink-0">
+        <div className="overflow-visible pb-3 w-full -mt-1 sm:-mt-4 md:-mt-6 px-2">
+          <div className="flex items-center justify-center sm:justify-between w-full gap-3 sm:gap-4 max-w-4xl mx-auto">
+            <div className="hidden sm:block h-[1.5px] flex-1 bg-[#F0ABFC]"></div>
+            <span className="font-serif italic font-normal normal-case tracking-wide text-sm sm:text-2xl md:text-3xl lg:text-[2.2rem] leading-snug sm:leading-normal text-white whitespace-normal sm:whitespace-nowrap text-center pt-0.5 pb-2 sm:pr-4 inline-block">
               Real-Time Participant Management + Gamification
             </span>
           </div>

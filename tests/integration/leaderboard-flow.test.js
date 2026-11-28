@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+﻿import { describe, it, expect, beforeEach } from 'vitest';
 import { leaderboardService } from '../../frontend/src/features/leaderboard/services/leaderboardService.js';
 import { quizService } from '../../frontend/src/features/quiz-integration-framework/services/quizService.js';
 import { mockProviderService } from '../../backend/services/quiz/mockProviderService.js';
@@ -52,7 +52,7 @@ describe('Integration Flow: Mock Quiz Result Ingestion -> Automatic Scoring -> L
 
     // 4. Freeze leaderboard as final winner declaration
     const declaration = await leaderboardService.declareWinners({
-      title: 'samVITya 2026 Grand Championship Ceremony',
+      title: 'Protocol Zero 2026 Grand Championship Ceremony',
       adminId: 'admin-finalizer'
     });
 

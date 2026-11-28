@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Calendar, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export function EventTimeline() {
@@ -36,7 +36,7 @@ export function EventTimeline() {
       title: 'Leaderboard Freeze & Winner Announcement',
       desc: 'Administrative leaderboard freeze lock. Official announcement of Top 3 champions and distribution of ₹50K+ awards.',
       status: 'Phase 5 Climax',
-      lead: 'Priyanshu'
+      lead: 'Priyansh'
     }
   ];
 

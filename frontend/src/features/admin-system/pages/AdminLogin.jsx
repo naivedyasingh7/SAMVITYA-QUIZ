@@ -14,7 +14,7 @@ export default function AdminLogin() {
   const { loginAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e?.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -26,7 +26,7 @@ export default function AdminLogin() {
     }
 
     try {
-      loginAdmin({ username: username.trim(), password });
+      await loginAdmin({ username: username.trim(), password });
       navigate('/admin/participants');
     } catch (err) {
       setError(err.message || 'Invalid credentials');
@@ -44,7 +44,7 @@ export default function AdminLogin() {
           </div>
           <h2 className="text-xl font-bold text-white tracking-tight">Staff & Administrator Login</h2>
           <p className="text-xs text-slate-400">
-            Protected portal. Enter your authorized admin username and password.
+            Protected portal. Enter your authorized administrator email and password.
           </p>
         </div>
 
@@ -58,14 +58,14 @@ export default function AdminLogin() {
         <form onSubmit={handleLogin} className="space-y-4 text-xs" autoComplete="off">
           <div>
             <label className="block text-slate-300 font-medium uppercase tracking-wider mb-1.5 text-[11px]">
-              Admin Username
+              Admin Email
             </label>
             <input
-              type="text"
+              type="email"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="ADMIN2026"
+              placeholder="admin@vitb.ac.in"
               className="glass-input w-full px-3 py-2 text-xs font-mono"
             />
           </div>

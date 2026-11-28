@@ -3,31 +3,45 @@ import { useAuth } from '../../../shared/hooks/useAuth.js';
 import { participantService } from '../services/participantService.js';
 import { leaderboardService } from '../../leaderboard/services/leaderboardService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
-import { Award, Zap, Target, History, Trophy, User, Sparkles, CheckCircle, Radio, PlayCircle, Copy, Check } from 'lucide-react';
+import { Award, Zap, Target, History, Trophy, User, Users, Sparkles, CheckCircle, Radio, PlayCircle, Copy, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ParticipantDashboard() {
   const { currentUser } = useAuth();
   const [profile, setProfile] = useState(null);
+  const [teamData, setTeamData] = useState(null);
   const [history, setHistory] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [offlineGames, setOfflineGames] = useState([]);
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isTeamSession = Boolean(currentUser?.isTeam);
   // Default to P001 (Alex Mercer) if not logged in
   const activeIdentifier = currentUser?.code || currentUser?.username || currentUser?.id || 'P001';
 
   const loadData = async () => {
     try {
-      const p = await participantService.getProfile(activeIdentifier);
-      const h = await participantService.getMyHistory(p?.id || activeIdentifier);
-      const lb = await leaderboardService.getRankings();
-      const games = eventStore.getActivities().filter((a) => a.type === 'offline_challenge');
-      setProfile(p);
-      setHistory(h);
-      setLeaderboard(lb);
-      setOfflineGames(games);
+      if (isTeamSession) {
+        const [td, lb] = await Promise.all([
+          participantService.getTeamDashboard({
+            teamId: currentUser.teamId || currentUser.id,
+            teamUsername: currentUser.teamUsername || currentUser.username
+          }),
+          leaderboardService.getRankings()
+        ]);
+        setTeamData(td);
+        setLeaderboard(lb);
+      } else {
+        const p = await participantService.getProfile(activeIdentifier);
+        const h = await participantService.getMyHistory(p?.id || activeIdentifier);
+        const lb = await leaderboardService.getRankings();
+        const games = eventStore.getActivities().filter((a) => a.type === 'offline_challenge');
+        setProfile(p);
+        setHistory(h);
+        setLeaderboard(lb);
+        setOfflineGames(games);
+      }
     } catch (err) {
       console.error('Error loading participant dashboard:', err);
     } finally {
@@ -41,7 +55,199 @@ export default function ParticipantDashboard() {
       loadData();
     });
     return unsubscribe;
-  }, [activeIdentifier]);
+  }, [activeIdentifier, isTeamSession, currentUser?.teamUsername]);
+
+  if (isTeamSession) {
+    const team = teamData || {
+      team_name: currentUser?.teamName || 'Team Dashboard',
+      team_username: currentUser?.teamUsername || '',
+      total_points: 0,
+      quiz_points: 0,
+      offline_points: 0,
+      members: [],
+      transactions: []
+    };
+
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Top Banner: Team Name & Aggregate Score */}
+        <div className="glass-surface rounded-3xl p-6 sm:p-8 border border-purple-500/25 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-purple-600/15 to-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 border border-white/20 flex items-center justify-center text-white shadow-xl shadow-purple-600/30 shrink-0">
+                <Users className="w-8 h-8" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-space">
+                    {team.team_name}
+                  </h2>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+                    <CheckCircle className="w-3 h-3" />
+                    <span>{team.members.length} Members</span>
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-400 font-mono">
+                  <span>Team ID: <strong className="text-indigo-300">{team.team_username}</strong></span>
+                  <span>•</span>
+                  <span>Shared Team Live Tracker</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-white/[0.03] p-4 rounded-2xl border border-white/10">
+              <div className="text-right">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-slate-400 block">
+                  Combined Team Score
+                </span>
+                <span className="text-2xl sm:text-3xl font-black font-space bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent tabular-nums">
+                  {team.total_points} pts
+                </span>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-300">
+                <Trophy className="w-6 h-6" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Team KPI Breakdown */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="glass-card p-5 border border-purple-500/30">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block">Team Total Points</span>
+            <div className="text-3xl font-black font-space text-white tabular-nums mt-1">{team.total_points}</div>
+            <span className="text-[11px] font-mono text-slate-400 mt-1 block">Quiz + Offline combined</span>
+          </div>
+          <div className="glass-card p-5 border border-indigo-500/30">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block">Team Quiz Points</span>
+            <div className="text-3xl font-black font-space text-indigo-300 tabular-nums mt-1">{team.quiz_points}</div>
+            <span className="text-[11px] font-mono text-indigo-300/70 mt-1 block">Online speed &amp; trivia quizzes</span>
+          </div>
+          <div className="glass-card p-5 border border-emerald-500/30">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block">Team Offline Game Points</span>
+            <div className="text-3xl font-black font-space text-emerald-300 tabular-nums mt-1">{team.offline_points}</div>
+            <span className="text-[11px] font-mono text-emerald-300/70 mt-1 block">Treasure hunt, stargazing, labs</span>
+          </div>
+        </div>
+
+        {/* Team Members Table: See every participant's quiz, offline points & what they are doing */}
+        <div className="glass-card border border-white/10 overflow-hidden shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-5 border-b border-white/[0.08]">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-purple-400" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white font-mono">
+                Team Participants &amp; Live Activity
+              </h3>
+            </div>
+            <Link
+              to="/quiz-simulation"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold shadow-md"
+            >
+              <PlayCircle className="w-4 h-4" />
+              <span>Play Online Quiz</span>
+            </Link>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-white/[0.06] text-left text-xs">
+              <thead className="bg-white/[0.02] text-slate-400 font-mono uppercase text-[10px]">
+                <tr>
+                  <th className="py-3.5 px-4">Code</th>
+                  <th className="py-3.5 px-4">Participant Name</th>
+                  <th className="py-3.5 px-4">Currently Doing / Latest Activity</th>
+                  <th className="py-3.5 px-4 text-right">Quiz Pts</th>
+                  <th className="py-3.5 px-4 text-right">Offline Pts</th>
+                  <th className="py-3.5 px-4 text-right font-bold">Total Pts</th>
+                  <th className="py-3.5 px-4 text-right">Global Rank</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04] text-slate-300">
+                {team.members.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="py-8 text-center text-slate-500 font-mono">
+                      No participants linked to this team yet.
+                    </td>
+                  </tr>
+                ) : (
+                  team.members.map((m) => (
+                    <tr key={m.id} className="hover:bg-white/[0.03] transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-indigo-300">{m.participant_code}</td>
+                      <td className="py-3.5 px-4 font-bold text-white text-sm">{m.full_name}</td>
+                      <td className="py-3.5 px-4 text-slate-300 max-w-xs truncate" title={m.latest_activity}>
+                        {m.latest_activity}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono text-indigo-300 font-semibold tabular-nums">
+                        {m.quiz_points}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono text-emerald-300 font-semibold tabular-nums">
+                        {m.offline_points}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono font-black text-white text-sm tabular-nums">
+                        {m.total_points}
+                      </td>
+                      <td className="py-3.5 px-4 text-right font-mono text-amber-300 font-bold">
+                        #{m.rank}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Combined Team Activity Feed */}
+        <div className="glass-card border border-white/10 p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <History className="w-4 h-4 text-indigo-400" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono">
+                Team Activity Feed ({team.transactions.length} events)
+              </h3>
+            </div>
+            <Link to="/leaderboard" className="text-xs text-purple-300 hover:text-purple-200 font-mono">
+              Full Leaderboard &rarr;
+            </Link>
+          </div>
+
+          {team.transactions.length === 0 ? (
+            <p className="text-xs text-slate-500 text-center py-6 font-mono">
+              No quiz or offline game scores logged for this team yet.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {team.transactions.map((tx) => (
+                <div
+                  key={tx.id}
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] text-xs"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded bg-indigo-500/15 border border-indigo-500/30 font-mono font-bold text-indigo-300 text-[10px]">
+                        {tx.participant_code}
+                      </span>
+                      <span className="font-bold text-white">{tx.participant_name}</span>
+                    </div>
+                    <p className="text-slate-300 mt-1 truncate">{tx.reason}</p>
+                  </div>
+                  <div className="text-right shrink-0 font-mono">
+                    <span className={`font-bold px-2 py-0.5 rounded border ${tx.points >= 0 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-rose-400 bg-rose-500/10 border-rose-500/20'}`}>
+                      {tx.points >= 0 ? `+${tx.points}` : tx.points} pts
+                    </span>
+                    <span className="block text-[10px] text-slate-500 mt-1">
+                      {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const pData = profile || {
     id: 'e4b52c08-0bf4-4f0f-8c38-89c89895ff81',

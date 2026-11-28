@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+﻿import { describe, it, expect, beforeEach } from 'vitest';
 import { leaderboardService } from '../../frontend/src/features/leaderboard/services/leaderboardService.js';
 import { eventStore } from '../../frontend/src/shared/services/eventStore.js';
 import { mockProviderService } from '../../backend/services/quiz/mockProviderService.js';
 
-describe('Module 5: Leaderboard & Rankings (Priyanshu)', () => {
+describe('Module 5: Leaderboard & Rankings (Priyansh)', () => {
   beforeEach(() => {
     // Reset eventStore to clean default seed state before each test
     eventStore.resetToDefaults();
@@ -68,7 +68,7 @@ describe('Module 5: Leaderboard & Rankings (Priyanshu)', () => {
       expect(await leaderboardService.isLocked()).toBe(false);
 
       const declaration = await leaderboardService.declareWinners({
-        title: 'samVITya 2026 Grand Championship Finale',
+        title: 'Protocol Zero 2026 Grand Championship Finale',
         adminId: 'admin-head-001'
       });
 
@@ -79,7 +79,7 @@ describe('Module 5: Leaderboard & Rankings (Priyanshu)', () => {
       expect(await leaderboardService.isLocked()).toBe(true);
 
       const fetchedDecl = await leaderboardService.getWinnerDeclaration();
-      expect(fetchedDecl.title).toBe('samVITya 2026 Grand Championship Finale');
+      expect(fetchedDecl.title).toBe('Protocol Zero 2026 Grand Championship Finale');
     });
 
     it('prevents non-adjustment point transactions when locked', async () => {

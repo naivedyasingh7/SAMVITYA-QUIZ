@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Award, PlusCircle, MinusCircle, Eye, Search, CheckCircle, X } from 'lucide-react';
 import { eventStore } from '../../../shared/services/eventStore.js';
 
@@ -18,18 +18,43 @@ export function ParticipantTable({
   const safePage = Math.min(page, totalPages);
   const paginatedParticipants = participants.slice((safePage - 1) * pageSize, safePage * pageSize);
 
+  // Pre-index net points per (participant_id, activity_id/title) for O(1) lookup and two-way tick toggle
+  const gamePointsIndex = useMemo(() => {
+    const map = new Map();
+    for (const tx of transactions) {
+      let entry = map.get(tx.participant_id);
+      if (!entry) {
+        entry = { byActivityId: new Map(), byReason: [] };
+        map.set(tx.participant_id, entry);
+      }
+      if (tx.activity_id) {
+        entry.byActivityId.set(
+          tx.activity_id,
+          (entry.byActivityId.get(tx.activity_id) || 0) + (Number(tx.points) || 0)
+        );
+      } else if (tx.reason) {
+        entry.byReason.push({ reason: tx.reason.toLowerCase(), points: Number(tx.points) || 0 });
+      }
+    }
+    return map;
+  }, [transactions]);
+
   const handleOpenProfile = (p) => {
     const history = eventStore.getTransactions({ participantId: p.participant_id || p.id });
     setSelectedProfile({ ...p, history });
   };
 
-  const isGameTicked = (participantId, game) => {
-    return transactions.some(
-      (tx) =>
-        tx.participant_id === participantId &&
-        (tx.activity_id === game.id ||
-          (tx.reason || '').toLowerCase().includes(game.title.toLowerCase()))
-    );
+  const getGameNetPoints = (participantId, game) => {
+    const entry = gamePointsIndex.get(participantId);
+    if (!entry) return 0;
+    let total = entry.byActivityId.get(game.id) || 0;
+    const titleLower = game.title.toLowerCase();
+    for (const item of entry.byReason) {
+      if (item.reason.includes(titleLower)) {
+        total += item.points;
+      }
+    }
+    return total;
   };
 
   return (
@@ -81,17 +106,22 @@ export function ParticipantTable({
                     <td className="py-3 px-4">
                       <div className="flex flex-wrap gap-1.5">
                         {offlineGames.map((game) => {
-                          const ticked = isGameTicked(pid, game);
+                          const netPoints = getGameNetPoints(pid, game);
+                          const ticked = netPoints > 0;
                           return (
                             <button
                               key={game.id}
                               type="button"
-                              onClick={() => !ticked && onToggleOfflineGame?.(p, game)}
-                              title={ticked ? `${game.title} completed` : `Tick off ${game.title} (+${game.max_points} pts)`}
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono border transition-all ${
+                              onClick={() => onToggleOfflineGame?.(p, game, ticked, netPoints)}
+                              title={
                                 ticked
-                                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold cursor-default'
-                                  : 'bg-white/[0.03] border-white/10 text-slate-400 hover:border-indigo-400/50 hover:text-white cursor-pointer'
+                                  ? `Click to untick ${game.title} (-${netPoints} pts)`
+                                  : `Click to tick off ${game.title} (+${Math.min(Number(game.max_points) || 20, 50)} pts)`
+                              }
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono border transition-all cursor-pointer ${
+                                ticked
+                                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold hover:bg-rose-500/15 hover:border-rose-400/50 hover:text-rose-200'
+                                  : 'bg-white/[0.03] border-white/10 text-slate-400 hover:border-indigo-400/50 hover:text-white'
                               }`}
                             >
                               <span>{ticked ? '☑' : '☐'}</span>

@@ -1,14 +1,14 @@
-import React from 'react';
+﻿import React from 'react';
 import { Mail, Phone, ExternalLink, Heart, Sparkles, Shield, Github, Linkedin, Instagram } from 'lucide-react';
 
 export function Footer() {
   const coordinators = [
-    { name: 'Srikirti', role: 'Participant System Lead', email: 'srikirti@vitap.ac.in', phone: '+91 98401 22341' },
-    { name: 'Suvradeep', role: 'Admin & Operations Lead', email: 'suvradeep@vitap.ac.in', phone: '+91 87654 32190' },
-    { name: 'Ashwin', role: 'Quiz Integration Lead', email: 'ashwin@vitap.ac.in', phone: '+91 91234 56789' },
-    { name: 'Divya', role: 'Automatic Scoring Lead', email: 'divya@vitap.ac.in', phone: '+91 99887 76655' },
-    { name: 'Priyanshu', role: 'Leaderboard & Analytics Lead', email: 'priyanshu@vitap.ac.in', phone: '+91 97766 55443' },
-    { name: 'Naivedya', role: 'QA & Deployment Lead', email: 'naivedya@vitap.ac.in', phone: '+91 94433 22110' }
+    { name: 'Srikirti', role: 'Participant System Lead', email: 'srikirti@vitb.ac.in', phone: '+91 98401 22341' },
+    { name: 'Suvradeep', role: 'Admin & Operations Lead', email: 'suvradeep@vitb.ac.in', phone: '+91 87654 32190' },
+    { name: 'Ashwin', role: 'Quiz Integration Lead', email: 'ashwin@vitb.ac.in', phone: '+91 91234 56789' },
+    { name: 'Divya', role: 'Automatic Scoring Lead', email: 'divya@vitb.ac.in', phone: '+91 99887 76655' },
+    { name: 'Priyansh', role: 'Leaderboard & Analytics Lead', email: 'Priyansh@vitb.ac.in', phone: '+91 97766 55443' },
+    { name: 'Naivedya', role: 'QA & Deployment Lead', email: 'naivedya@vitb.ac.in', phone: '+91 94433 22110' }
   ];
 
   return (
@@ -29,7 +29,7 @@ export function Footer() {
             <span className="block text-gradient-purple">TOGETHER.</span>
           </h2>
           <div className="mt-4 font-serif italic text-xl sm:text-2xl text-purple-300">
-            samVITya 2026 • Annual Technical Festival
+            Protocol Zero 2026 • Annual Technical Festival
           </div>
         </div>
 
@@ -39,7 +39,7 @@ export function Footer() {
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-gray-400 font-bold">
               Engineering Leads & Module Owners
             </span>
-            <span className="font-mono text-xs text-pink-400">VIT-AP SCSE FOSTA</span>
+            <span className="font-mono text-xs text-pink-400">VIT B SCSE FOSTA</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -75,14 +75,14 @@ export function Footer() {
         {/* Bottom Credits & Social Links */}
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-gray-500">
           <div>
-            © 2026 samVITya Event Points Management System. All rights reserved.
+            © 2026 Protocol Zero Event Points Management System. All rights reserved.
           </div>
           <div className="flex items-center gap-6">
             <a href="#about" className="hover:text-purple-300 transition-colors">About</a>
             <a href="#modules" className="hover:text-pink-300 transition-colors">Architecture</a>
             <a href="#leaderboard" className="hover:text-purple-300 transition-colors">Leaderboard</a>
             <span className="text-gray-700">|</span>
-            <span className="text-gray-400">VIT-AP University</span>
+            <span className="text-gray-400">VIT B University</span>
           </div>
         </div>
 

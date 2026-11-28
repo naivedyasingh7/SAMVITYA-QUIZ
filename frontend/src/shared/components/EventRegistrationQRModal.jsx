@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { X, Download, Printer, QrCode, Sparkles } from 'lucide-react';
 
@@ -9,7 +9,7 @@ export function EventRegistrationQRModal({ isOpen, onClose }) {
     if (isOpen) {
       const regUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/register`
-        : 'https://samvitya2026.vit.ac.in/register';
+        : 'https://Protocol Zero2026.vit.ac.in/register';
 
       QRCode.toDataURL(regUrl, {
         width: 380,
@@ -30,7 +30,7 @@ export function EventRegistrationQRModal({ isOpen, onClose }) {
     if (!qrUrl) return;
     const a = document.createElement('a');
     a.href = qrUrl;
-    a.download = 'samVITya-2026-Event-Registration-QR1.png';
+    a.download = 'protocol-zero-2026-Event-Registration-QR1.png';
     a.click();
   };
 
@@ -58,7 +58,7 @@ export function EventRegistrationQRModal({ isOpen, onClose }) {
         </div>
 
         <h3 className="text-xl sm:text-2xl font-black text-white font-space tracking-tight">
-          Scan to Enter samVITya '26
+          Scan to Enter Protocol Zero '26
         </h3>
         <p className="text-xs text-slate-300 mt-1.5 max-w-xs mx-auto">
           Display on entrance projectors or print on venue banners. Scanning opens the registration portal and generates individual competitor IDs.

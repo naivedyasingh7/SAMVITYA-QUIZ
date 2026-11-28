@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   root: 'frontend',
+  envDir: path.resolve(__dirname, '.'),
   publicDir: 'public',
   plugins: [react()],
   define: {
@@ -30,6 +31,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    env: {
+      VITE_ENABLE_MOCK_DATA: 'true'
+    },
     include: ['../tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', 'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}']
   }
 });

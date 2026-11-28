@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import { eventStore } from '../../shared/services/eventStore.js';
+import { participantService } from '../../features/participant-system/services/participantService.js';
 import { sanitizeEmail, sanitizeText } from '@shared/utils/sanitize.js';
+import { supabase } from '../../../../backend/utils/supabaseClient.js';
 
 const AuthContext = createContext(null);
 
@@ -74,9 +76,10 @@ export function AuthProvider({ children }) {
   };
 
   /**
-   * Log in as an Administrator with credential validation & brute-force rate limiting.
+   * Log in as an Administrator.
+   * Uses Supabase Auth when VITE_ENABLE_MOCK_DATA === 'false', or local fallback in mock/dev mode.
    */
-  const loginAdmin = ({ username, email, password } = {}) => {
+  const loginAdmin = async ({ username, email, password } = {}) => {
     // Check brute-force lockout
     try {
       const rawLock = localStorage.getItem(STORAGE_KEY_LOCKOUT);
@@ -95,7 +98,42 @@ export function AuthProvider({ children }) {
     const cleanPass = String(password || '');
 
     if (!cleanUser || !cleanPass) {
-      throw new Error('Admin username and password are required.');
+      throw new Error('Admin username/email and password are required.');
+    }
+
+    const isLiveSupabase = import.meta.env.VITE_ENABLE_MOCK_DATA === 'false';
+
+    if (isLiveSupabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanUser,
+        password: cleanPass
+      });
+
+      if (error || !data?.user) {
+        throw new Error(error?.message || 'Invalid Supabase administrator credentials.');
+      }
+
+      const { data: adminRow, error: adminErr } = await supabase
+        .from('admins')
+        .select('id, full_name, email, role')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (adminErr || !adminRow) {
+        await supabase.auth.signOut();
+        throw new Error('Account is authenticated but not authorized in public.admins.');
+      }
+
+      localStorage.removeItem(STORAGE_KEY_LOCKOUT);
+      const adminUser = {
+        id: adminRow.id,
+        name: adminRow.full_name || cleanUser,
+        email: adminRow.email,
+        username: adminRow.email,
+        role: 'admin'
+      };
+      setAuthSession('admin', adminUser);
+      return adminUser;
     }
 
     const validUser = cleanUser === EXPECTED_ADMIN_USERNAME;
@@ -193,6 +231,25 @@ export function AuthProvider({ children }) {
   };
 
   /**
+   * Log in a Team using a common team username and password shared by all team members.
+   */
+  const loginTeam = async ({ teamUsername, password } = {}) => {
+    const team = await participantService.loginTeam({ teamUsername, password });
+    const teamUser = {
+      id: team.id,
+      teamId: team.id,
+      teamName: team.team_name,
+      teamUsername: team.team_username,
+      name: team.team_name,
+      username: team.team_username,
+      isTeam: true,
+      role: 'participant'
+    };
+    setAuthSession('participant', teamUser);
+    return teamUser;
+  };
+
+  /**
    * Log out current user
    */
   const logout = () => {
@@ -209,6 +266,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: Boolean(currentUser && role !== 'guest' && isSessionValid(currentUser)),
         loginAdmin,
         loginParticipant,
+        loginTeam,
         registerParticipant,
         logout
       }}

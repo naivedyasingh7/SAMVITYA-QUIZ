@@ -1,4 +1,4 @@
-# Database Schema Specification
+﻿# Database Schema Specification
 
 This document defines the 11 normalized tables that form the central backbone of the **Event Points Management System**. All developers must build against these exact column definitions, foreign keys, and constraints.
 
@@ -152,7 +152,7 @@ erDiagram
 
 ---
 
-### 10. `leaderboard` (Owner: Priyanshu)
+### 10. `leaderboard` (Owner: Priyansh)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `participant_id` | UUID | PRIMARY KEY, REFERENCES participants(id) | Participant reference |
@@ -164,7 +164,7 @@ erDiagram
 
 ---
 
-### 11. `winner_declarations` (Owner: Priyanshu)
+### 11. `winner_declarations` (Owner: Priyansh)
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Declaration identifier |

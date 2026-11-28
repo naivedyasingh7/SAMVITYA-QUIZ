@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 
 export function FAQSection() {
@@ -23,7 +23,7 @@ export function FAQSection() {
     },
     {
       q: 'Who are the lead developers and organizers of this system?',
-      a: 'The system is built by six student leads from the Department of Computer Science & Engineering, VIT-AP University: Srikirti (Participant System), Suvradeep (Admin System), Ashwin (Quiz Integration), Divya (Automatic Scoring), Priyanshu (Leaderboard & Analytics), and Naivedya (Testing & Deployment).'
+      a: 'The system is built by six student leads from the Department of Computer Science & Engineering, VIT B University: Srikirti (Participant System), Suvradeep (Admin System), Ashwin (Quiz Integration), Divya (Automatic Scoring), Priyansh (Leaderboard & Analytics), and Naivedya (Testing & Deployment).'
     }
   ];
 

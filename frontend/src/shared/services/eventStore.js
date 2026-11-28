@@ -1,6 +1,6 @@
 /**
  * eventStore.js
- * Centralized, reactive state store and persistence engine for the samVITya '26
+ * Centralized, reactive state store and persistence engine for the Protocol Zero '26
  * Real-Time Event Participant Management + Gamification System.
  *
  * Implements:
@@ -94,6 +94,22 @@ const INITIAL_ACTIVITIES = [
   }
 ];
 
+// Seeded Teams for common Team Login
+const INITIAL_TEAMS = [
+  {
+    id: 'team-alpha',
+    team_name: 'Alpha Cyber Squad',
+    team_username: 'TEAM-ALPHA',
+    team_password: 'Alpha@2026'
+  },
+  {
+    id: 'team-nova',
+    team_name: 'Nova Robotics',
+    team_username: 'TEAM-NOVA',
+    team_password: 'Nova@2026'
+  }
+];
+
 // Seeded participants matching the user's exact specification & leaderboard
 const INITIAL_PARTICIPANTS = [
   {
@@ -104,6 +120,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P001',
     organization: 'VIT Computer Science Club',
     track: 'AI & Systems',
+    team_username: 'TEAM-ALPHA',
+    team_name: 'Alpha Cyber Squad',
     status: 'Active',
     created_at: '2026-11-20T09:15:00Z'
   },
@@ -115,6 +133,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P002',
     organization: 'Cybersecurity Club',
     track: 'Cybersecurity',
+    team_username: 'TEAM-ALPHA',
+    team_name: 'Alpha Cyber Squad',
     status: 'Active',
     created_at: '2026-11-20T09:20:00Z'
   },
@@ -126,6 +146,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P003',
     organization: 'ACM Student Chapter',
     track: 'Algorithms',
+    team_username: 'TEAM-ALPHA',
+    team_name: 'Alpha Cyber Squad',
     status: 'Active',
     created_at: '2026-11-20T09:30:00Z'
   },
@@ -137,6 +159,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P008',
     organization: 'Data Science Club',
     track: 'Data Science',
+    team_username: 'TEAM-NOVA',
+    team_name: 'Nova Robotics',
     status: 'Active',
     created_at: '2026-11-20T09:40:00Z'
   },
@@ -148,6 +172,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P014',
     organization: 'Robotics Guild',
     track: 'Robotics',
+    team_username: 'TEAM-NOVA',
+    team_name: 'Nova Robotics',
     status: 'Active',
     created_at: '2026-11-20T09:50:00Z'
   },
@@ -159,6 +185,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P004',
     organization: 'Web3 Builders Collective',
     track: 'Web3 & DeFi',
+    team_username: 'TEAM-NOVA',
+    team_name: 'Nova Robotics',
     status: 'Active',
     created_at: '2026-11-20T10:00:00Z'
   },
@@ -170,6 +198,8 @@ const INITIAL_PARTICIPANTS = [
     participant_code: 'P005',
     organization: 'Design & Code Guild',
     track: 'UI/UX Design',
+    team_username: 'TEAM-NOVA',
+    team_name: 'Nova Robotics',
     status: 'Active',
     created_at: '2026-11-20T10:15:00Z'
   }
@@ -809,6 +839,94 @@ class EventStore {
     }));
   }
 
+  // --- Team Authentication & Shared Team View ---
+
+  getTeams() {
+    return INITIAL_TEAMS;
+  }
+
+  authenticateTeam(teamUsername, password) {
+    const cleanUser = sanitizeText(teamUsername, 64).toUpperCase();
+    const cleanPass = String(password || '');
+    const team = INITIAL_TEAMS.find(
+      (t) => t.team_username.toUpperCase() === cleanUser && t.team_password === cleanPass
+    );
+    if (!team) {
+      throw new Error('Invalid team username or password.');
+    }
+    return {
+      id: team.id,
+      team_name: team.team_name,
+      team_username: team.team_username
+    };
+  }
+
+  getTeamDashboard(teamUsernameOrId) {
+    const key = String(teamUsernameOrId || '').trim().toLowerCase();
+    const team = INITIAL_TEAMS.find(
+      (t) => t.team_username.toLowerCase() === key || t.id.toLowerCase() === key
+    );
+    const participants = this.getParticipants();
+    const leaderboard = this.getLeaderboard();
+    const lbMap = new Map(leaderboard.map((item) => [item.participant_id, item]));
+    const allTransactions = this.getTransactions();
+
+    const membersRaw = participants.filter((p) => {
+      if (team) {
+        return (
+          (p.team_username || '').toLowerCase() === team.team_username.toLowerCase() ||
+          (p.team_name || '').toLowerCase() === team.team_name.toLowerCase()
+        );
+      }
+      return (p.team_username || '').toLowerCase() === key;
+    });
+
+    const memberIds = new Set(membersRaw.map((m) => m.id));
+    const teamTransactions = allTransactions
+      .filter((tx) => memberIds.has(tx.participant_id))
+      .map((tx) => {
+        const m = membersRaw.find((item) => item.id === tx.participant_id);
+        return {
+          ...tx,
+          participant_name: m?.full_name || 'Member',
+          participant_code: m?.username || m?.participant_code || 'P000'
+        };
+      });
+
+    const members = membersRaw.map((m) => {
+      const lb = lbMap.get(m.id);
+      const latestTx = teamTransactions.find((tx) => tx.participant_id === m.id);
+      return {
+        id: m.id,
+        participant_code: m.username || m.participant_code,
+        full_name: m.full_name,
+        email: m.email,
+        status: m.status || 'Active',
+        quiz_points: lb?.quiz_points || 0,
+        offline_points: lb?.offline_points || 0,
+        total_points: lb?.total_points || 0,
+        rank: lb?.rank || '-',
+        latest_activity: latestTx ? latestTx.reason : 'Waiting for first activity',
+        latest_activity_at: latestTx?.created_at || m.created_at
+      };
+    });
+
+    const totalPoints = members.reduce((s, m) => s + m.total_points, 0);
+    const quizPoints = members.reduce((s, m) => s + m.quiz_points, 0);
+    const offlinePoints = members.reduce((s, m) => s + m.offline_points, 0);
+
+    return {
+      team_id: team?.id || key,
+      team_name: team?.team_name || membersRaw[0]?.team_name || teamUsernameOrId,
+      team_username: team?.team_username || teamUsernameOrId,
+      total_points: totalPoints,
+      quiz_points: quizPoints,
+      offline_points: offlinePoints,
+      members,
+      transactions: teamTransactions
+    };
+  }
+
   // --- Winner Announcement & Locking ---
 
   isLeaderboardLocked() {
@@ -831,7 +949,7 @@ class EventStore {
     }
   }
 
-  declareWinners({ title = 'samVITya 2026 Grand Championship Winners', adminId = 'admin-001' }) {
+  declareWinners({ title = 'Protocol Zero 2026 Grand Championship Winners', adminId = 'admin-001' }) {
     const leaderboard = this.getLeaderboard();
     const topWinners = leaderboard.slice(0, 3).map((item) => ({
       rank: item.rank,

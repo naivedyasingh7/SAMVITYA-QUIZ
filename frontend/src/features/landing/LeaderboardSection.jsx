@@ -31,7 +31,7 @@ export function LeaderboardSection({ onOpenSimulator }) {
         {/* Section Header */}
         <div className="text-center mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 font-mono text-[11px] uppercase tracking-[0.25em] mb-4">
-            <Trophy className="w-3.5 h-3.5 text-amber-400" /> PERSON 5 • PRIYANSHU MODULE
+            <Trophy className="w-3.5 h-3.5 text-amber-400" /> PERSON 5 • Priyansh MODULE
           </div>
           <h2 className="font-sans font-black uppercase text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-tight">
             LIVE EVENT <span className="text-gradient">LEADERBOARD</span>
@@ -159,7 +159,7 @@ export function LeaderboardSection({ onOpenSimulator }) {
                     </td>
                     <td className="p-4">
                       <div className="font-bold text-white text-sm sm:text-base">{entry.full_name}</div>
-                      <div className="text-[11px] text-gray-500 font-mono">{entry.organization}</div>
+                      <div className="h-4" aria-hidden="true" />
                     </td>
                     <td className="p-4 font-mono text-xs text-pink-400">{entry.participant_code}</td>
                     <td className="p-4 text-right font-mono text-purple-300">{entry.online_points}</td>

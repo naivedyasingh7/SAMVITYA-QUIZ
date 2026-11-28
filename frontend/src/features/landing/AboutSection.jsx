@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { QrCode, Cpu, ShieldCheck, Zap, Database, Trophy, ArrowRight } from 'lucide-react';
 
 export function AboutSection({ onOpenRegister }) {
@@ -14,10 +14,10 @@ export function AboutSection({ onOpenRegister }) {
             <Zap className="w-3.5 h-3.5 text-pink-400" /> EVENT ARCHITECTURE & CONCEPT
           </div>
           <h2 className="font-sans font-black uppercase text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-tight">
-            WHAT IS <span className="text-gradient-purple">SAMVITYA 2026?</span>
+            WHAT IS <span className="text-gradient-purple">Protocol Zero 2026?</span>
           </h2>
           <p className="max-w-3xl mx-auto mt-4 text-gray-300 text-sm sm:text-base leading-relaxed font-normal">
-            samVITya is VIT-AP's flagship technical points arena designed with a contract-first distributed architecture. Hundreds of participants compete simultaneously across online speed quizzes and offline physical arena stations, with instant scores processed into an immutable PostgreSQL ledger.
+            Protocol Zero is VIT B's flagship technical points arena designed with a contract-first distributed architecture. Hundreds of participants compete simultaneously across online speed quizzes and offline physical arena stations, with instant scores processed into an immutable PostgreSQL ledger.
           </p>
         </div>
 

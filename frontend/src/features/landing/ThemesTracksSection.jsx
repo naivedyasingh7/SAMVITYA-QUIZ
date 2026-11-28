@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { UserCheck, Shield, Layers, Award, Trophy, CheckSquare, ArrowUpRight, Cpu } from 'lucide-react';
 
 export function ThemesTracksSection() {
@@ -76,7 +76,7 @@ export function ThemesTracksSection() {
     {
       id: 'leaderboard',
       name: 'Realtime Leaderboard',
-      lead: 'Priyanshu',
+      lead: 'Priyansh',
       phase: 'Phase 5',
       branch: 'feature/leaderboard',
       icon: Trophy,
@@ -124,7 +124,7 @@ export function ThemesTracksSection() {
           OUR THEMES & MODULES
         </h2>
         <p className="font-serif italic text-base sm:text-lg text-purple-200">
-          Six independent engineering pillars powering the samVITya arena
+          Six independent engineering pillars powering the Protocol Zero arena
         </p>
       </div>
 

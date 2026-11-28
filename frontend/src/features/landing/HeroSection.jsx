@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { QrCode, Trophy, ArrowRight, Zap, Play, Sparkles, Terminal } from 'lucide-react';
 
 export function HeroSection({ onOpenRegister, onOpenSimulator }) {
@@ -12,10 +12,10 @@ export function HeroSection({ onOpenRegister, onOpenSimulator }) {
       {/* Hero Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center text-center">
         
-        {/* Top Floating Pill Tag (Department of CSE • VIT-AP) */}
+        {/* Top Floating Pill Tag (Department of CSE • VIT B) */}
         <div className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/[0.04] px-4 py-1.5 sm:px-6 sm:py-2 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] mb-4 sm:mb-6 animate-in fade-in duration-500">
           <span className="font-sans font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#FAF8F5] text-[10px] sm:text-xs">
-            DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING • VIT-AP UNIVERSITY
+            DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING • VIT B UNIVERSITY
           </span>
         </div>
 
@@ -36,7 +36,7 @@ export function HeroSection({ onOpenRegister, onOpenSimulator }) {
             className="font-sans font-black uppercase tracking-tight text-white leading-[0.88] text-center"
             style={{ fontSize: 'clamp(2.8rem, 11vw, 8.5rem)' }}
           >
-            <span className="block text-gradient">SAMVITYA</span>
+            <span className="block text-gradient">Protocol Zero</span>
             <span className="block text-gradient-purple -mt-1 sm:-mt-3">2026</span>
           </h1>
 
@@ -64,7 +64,7 @@ export function HeroSection({ onOpenRegister, onOpenSimulator }) {
 
         {/* Narrative Description */}
         <p className="max-w-2xl text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed mb-8 sm:mb-10 font-normal px-4">
-          Experience VIT-AP's high-octane technical arena. Check in with your personalized QR badge, conquer live speed quizzes, tackle physical booth missions, and witness your rank rise in real-time.
+          Experience VIT B's high-octane technical arena. Check in with your personalized QR badge, conquer live speed quizzes, tackle physical booth missions, and witness your rank rise in real-time.
         </p>
 
         {/* Interactive Action Buttons */}

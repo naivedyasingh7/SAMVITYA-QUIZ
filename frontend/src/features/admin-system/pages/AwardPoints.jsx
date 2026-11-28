@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AdminSidebar } from '../components/AdminSidebar.jsx';
 import { adminService } from '../services/adminService.js';
 import { activityService } from '../services/activityService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
-import { Award, CheckCircle, Sparkles, AlertCircle } from 'lucide-react';
+import { Award, CheckCircle, AlertCircle, Search, UserCheck } from 'lucide-react';
 
 export default function AwardPoints() {
   const [participants, setParticipants] = useState([]);
   const [activities, setActivities] = useState([]);
   const [selectedParticipantId, setSelectedParticipantId] = useState('');
+  const [participantQuery, setParticipantQuery] = useState('');
   const [selectedActivityId, setSelectedActivityId] = useState('');
   const [points, setPoints] = useState(20);
   const [reason, setReason] = useState('Treasure Hunt: Clue completion');
@@ -36,13 +37,18 @@ export default function AwardPoints() {
     return unsub;
   }, []);
 
-  const handleParticipantFound = (matched) => {
-    setSelectedParticipantId(matched.id);
-    setStatusMessage({
-      type: 'success',
-      text: `QR Scanned! Selected ${matched.username} (${matched.full_name})`
-    });
-  };
+  const filteredParticipants = useMemo(() => {
+    const q = participantQuery.toLowerCase().trim();
+    if (!q) return participants.slice(0, 8);
+    return participants
+      .filter((p) => {
+        const code = (p.username || p.participant_code || '').toLowerCase();
+        const name = (p.full_name || '').toLowerCase();
+        const email = (p.email || '').toLowerCase();
+        return code.includes(q) || name.includes(q) || email.includes(q);
+      })
+      .slice(0, 8);
+  }, [participants, participantQuery]);
 
   const handleAward = async (e) => {
     e.preventDefault();
@@ -64,7 +70,7 @@ export default function AwardPoints() {
       const matchedPart = participants.find((p) => (p.participant_id || p.id) === selectedParticipantId);
       setStatusMessage({
         type: 'success',
-        text: `Successfully added +${points} points to ${matchedPart?.username || 'Competitor'}! Leaderboard updated.`
+        text: `Successfully added +${points} points to ${matchedPart?.username || 'Competitor'} (${matchedPart?.full_name || ''}). Leaderboard synced.`
       });
     } catch (err) {
       setStatusMessage({
@@ -84,8 +90,8 @@ export default function AwardPoints() {
     <div className="flex min-h-[calc(100vh-60px)]">
       <AdminSidebar />
 
-      <div className="flex-1 p-6 lg:p-8 space-y-6 max-w-4xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
+      <div className="flex-1 min-w-0 p-5 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Award className="w-4 h-4 text-indigo-400" />
@@ -94,10 +100,10 @@ export default function AwardPoints() {
               </span>
             </div>
             <h2 className="text-2xl font-black text-white tracking-tight font-space">
-              Award & Record Offline Game Points
+              Award &amp; Record Offline Points
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Choose participant ID (P001, P002...), select offline game, and award points instantly.
+              Search any competitor by ID (P001, P250...) or name, choose an activity, and issue verified points.
             </p>
           </div>
         </div>
@@ -110,40 +116,72 @@ export default function AwardPoints() {
                 : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
             }`}
           >
-            {statusMessage.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+            {statusMessage.type === 'success' ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
             <span>{statusMessage.text}</span>
           </div>
         )}
 
-        <div className="glass-surface p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="glass-surface p-6 sm:p-8 rounded-2xl border border-white/10 shadow-2xl">
           <form onSubmit={handleAward} className="space-y-6 text-xs">
-            {/* Participant Selector */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
+            {/* Searchable Participant Picker (Scales to 500+ participants) */}
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider font-mono">
-                  Participant *
+                  Find Competitor ({participants.length} total) *
                 </label>
                 {currentParticipant && (
-                  <span className="text-xs font-mono text-indigo-300 font-bold">
-                    Current Total: {currentParticipant.total_points || 0} pts (Rank #{currentParticipant.rank || '-'})
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-[11px] font-mono text-indigo-200">
+                    <UserCheck className="w-3.5 h-3.5 text-indigo-400" />
+                    Selected: <strong>{currentParticipant.username}</strong> — {currentParticipant.full_name} ({currentParticipant.total_points || 0} pts • #{currentParticipant.rank || '-'})
                   </span>
                 )}
               </div>
-              <select
-                value={selectedParticipantId}
-                onChange={(e) => setSelectedParticipantId(e.target.value)}
-                className="w-full glass-input px-3.5 py-3 text-xs text-white bg-slate-900 rounded-xl"
-                required
-              >
-                {participants.map((p) => {
-                  const u = p.username || p.participant_code || 'P000';
-                  return (
-                    <option key={p.participant_id || p.id} value={p.participant_id || p.id}>
-                      {u} — {p.full_name} ({p.organization || 'Club'}) | Total: {p.total_points || 0} pts
-                    </option>
-                  );
-                })}
-              </select>
+
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={participantQuery}
+                  onChange={(e) => setParticipantQuery(e.target.value)}
+                  placeholder="Type participant code (e.g. P001, P420), name, or email..."
+                  className="w-full glass-input pl-10 pr-4 py-2.5 text-xs text-white rounded-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                {filteredParticipants.length === 0 ? (
+                  <div className="col-span-full py-4 text-center text-slate-500 font-mono">
+                    No competitor matched &ldquo;{participantQuery}&rdquo;.
+                  </div>
+                ) : (
+                  filteredParticipants.map((p) => {
+                    const pid = p.participant_id || p.id;
+                    const isSelected = pid === selectedParticipantId;
+                    return (
+                      <button
+                        key={pid}
+                        type="button"
+                        onClick={() => setSelectedParticipantId(pid)}
+                        className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? 'bg-indigo-600/20 border-indigo-400/60 text-white shadow-sm'
+                            : 'bg-white/[0.02] border-white/[0.08] text-slate-300 hover:bg-white/[0.05]'
+                        }`}
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className="font-mono font-bold text-indigo-300 mr-1.5">
+                            {p.username || p.participant_code}
+                          </span>
+                          <span className="font-semibold truncate">{p.full_name}</span>
+                        </div>
+                        <span className="font-mono text-[11px] font-bold text-emerald-300 shrink-0">
+                          {p.total_points || 0} pts
+                        </span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
             {/* Offline Game Selection */}
@@ -180,7 +218,7 @@ export default function AwardPoints() {
                     type="button"
                     onClick={() => setPoints(val)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
-                      points === val
+                      Number(points) === val
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                         : 'bg-white/[0.04] text-slate-300 hover:bg-white/[0.08] border border-white/10'
                     }`}
@@ -233,8 +271,8 @@ export default function AwardPoints() {
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30 hover:opacity-95 transition-all flex items-center justify-center gap-2 active:scale-98"
+              disabled={isSubmitting || !selectedParticipantId}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30 hover:opacity-95 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               <Award className="w-4 h-4" />
               <span>{isSubmitting ? 'Updating Database...' : 'Add Points & Sync Leaderboard'}</span>

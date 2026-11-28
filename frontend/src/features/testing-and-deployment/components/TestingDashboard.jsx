@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { mockDataService } from '../services/mockDataService.js';
 import { quizService } from '../../quiz-integration-framework/services/quizService.js';
 import { eventStore } from '../../../shared/services/eventStore.js';
@@ -86,7 +86,7 @@ export function TestingDashboard() {
       const t0 = performance.now();
       const batchUsers = Array.from({ length: 500 }, (_, i) => ({
         fullName: `LoadUser ${i + 1}`,
-        email: `loaduser.${Date.now()}.${i + 1}@samvitya.test`,
+        email: `loaduser.${Date.now()}.${i + 1}@Protocol Zero.test`,
         organization: `Club ${(i % 6) + 1}`,
         track: ['AI & Systems', 'Cybersecurity', 'Algorithms', 'Robotics'][i % 4]
       }));

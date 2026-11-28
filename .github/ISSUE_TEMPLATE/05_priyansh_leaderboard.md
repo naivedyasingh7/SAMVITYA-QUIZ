@@ -1,13 +1,13 @@
----
-name: "Task: [Priyanshu] Leaderboard Deliverables"
-about: "Deliverable tracker for Priyanshu - Phase 5: Leaderboard"
-title: "[Priyanshu] Leaderboard & Analytics - Phase 5 Implementation"
+﻿---
+name: "Task: [Priyansh] Leaderboard Deliverables"
+about: "Deliverable tracker for Priyansh - Phase 5: Leaderboard"
+title: "[Priyansh] Leaderboard & Analytics - Phase 5 Implementation"
 labels: ["module:leaderboard", "phase-5"]
 assignees: ""
 ---
 
 ### 👤 Module Owner
-**Priyanshu** | Branch: `feature/leaderboard` | Folder: `frontend/src/features/leaderboard/`
+**Priyansh** | Branch: `feature/leaderboard` | Folder: `frontend/src/features/leaderboard/`
 
 ---
 

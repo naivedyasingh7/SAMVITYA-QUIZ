@@ -73,10 +73,10 @@ export function HeaderNav({ onOpenRegister }) {
 
       {/* Full-Screen Menu Overlay (HackX Signature Fullscreen Menu) */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[95] bg-[#05000d]/95 backdrop-blur-3xl flex flex-col justify-between p-8 sm:p-14 md:p-20 text-white animate-in fade-in duration-300 select-none">
+        <div className="fixed inset-0 z-[95] bg-[#05000d]/95 backdrop-blur-3xl flex flex-col justify-between p-6 sm:p-14 md:p-20 text-white animate-in fade-in duration-300 select-none overflow-y-auto">
           {/* Top Bar inside Overlay */}
           <div className="flex justify-between items-center text-xs font-mono tracking-widest text-gray-400 uppercase border-b border-white/10 pb-6">
-            <span>VIT-AP UNIVERSITY • SAMVITYA 2026</span>
+            <span>VIT B UNIVERSITY • Protocol Zero 2026</span>
             <span className="text-pink-400">ARENA NAVIGATION</span>
           </div>
 

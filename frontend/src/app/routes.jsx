@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import LandingPage from '../features/landing/LandingPage.jsx';
 import RegisterPage from '../features/participant-system/pages/RegisterPage.jsx';
@@ -159,7 +159,7 @@ export function AppRoutes() {
           }
         />
 
-        {/* Phase 5: Leaderboard & analytics (Priyanshu) */}
+        {/* Phase 5: Leaderboard & analytics (Priyansh) */}
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route
           path="/leaderboard/analytics"

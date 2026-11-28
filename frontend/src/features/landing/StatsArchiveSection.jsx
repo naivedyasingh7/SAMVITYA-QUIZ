@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Users, Layers, Trophy, ArrowRight } from 'lucide-react';
 
 export function StatsArchiveSection() {
@@ -20,7 +20,7 @@ export function StatsArchiveSection() {
       title: 'modules',
       metric: '6 Teams',
       label: 'Contract-First Monorepo',
-      desc: 'Independent development modules owned by Srikirti, Suvradeep, Ashwin, Divya, Priyanshu, and Naivedya integrated on develop.',
+      desc: 'Independent development modules owned by Srikirti, Suvradeep, Ashwin, Divya, Priyansh, and Naivedya integrated on develop.',
       color: 'from-pink-900/60 via-pink-950/40 to-black',
       icon: Layers,
       tag: '02 • Engineering Pillars'

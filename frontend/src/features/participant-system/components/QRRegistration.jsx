@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Download, QrCode, CheckCircle, Copy, Sparkles, Shield } from 'lucide-react';
 
@@ -36,7 +36,7 @@ export function QRRegistration({ participantCode, participantName, participantUs
     if (!qrUrl) return;
     const a = document.createElement('a');
     a.href = qrUrl;
-    a.download = `samVITya-Badge-${displayUsername}.png`;
+    a.download = `protocol-zero-Badge-${displayUsername}.png`;
     a.click();
   };
 
